@@ -6,8 +6,14 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: on-failure
-    container_name: api
+    tty: true
+    volumes:
+      - .:/workspace:cached
+      - ~/.ssh:/root/.ssh:cached
     ports:
       - "3000:3000"
-    volumes:
-      - .:/workspace
+  
+  mongodb:
+    extends:
+      file: ../docker-compose.yaml
+      service: mongodb
