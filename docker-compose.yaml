@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    container_name: api
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/workspace
