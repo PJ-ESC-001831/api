@@ -14,10 +14,10 @@ commit_and_push() {
   local commit_message="$1"
 
   # Commit changes in the api directory
-  git add . && git commit -m "$commit_message"
+  git add . && git commit -m "$commit_message" && git push
 
   # Commit changes in the root directory
-  cd .. && git add . && git commit -m "$commit_message" && cd api
+  cd .. && git add . && git commit -m "$commit_message" && git push && cd api
 
   # Check if commit was successful
   if [ $? -ne 0 ]; then
