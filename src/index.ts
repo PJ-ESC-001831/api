@@ -3,7 +3,8 @@ import bodyParser from 'body-parser';
 import fileParser from 'express-multipart-file-parser';
 import cors from 'cors';
 
-import health from './modules/health';
+import health from '@modules/health';
+import logger from '@utils/logger';
 
 import requestLogger from './middleware/logger';
 
@@ -20,5 +21,5 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/v1/health', health);
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  logger.info(`Server is running on port ${port}`);
 });

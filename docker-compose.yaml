@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   api:
@@ -11,8 +11,8 @@ services:
       - .:/workspace:cached
       - ~/.ssh:/root/.ssh:cached
     ports:
-      - "3000:3000"
-  
+      - '3000:3000'
+
   mongodb:
     extends:
       file: ../docker-compose.yaml
