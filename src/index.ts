@@ -4,38 +4,40 @@ import fileParser from 'express-multipart-file-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+import logger from '@utils/logger';
+
 // Import routes
 import health from '@modules/health';
 import campaign from '@modules/campaign';
 
 // Import middleware
-import logger from '@utils/logger';
-
-import requestLogger from './middleware/logger';
+import authGuard from '@middleware/auth';
+import requestLogger from '@middleware/logger';
+import requestErrorHandler from '@middleware/error';
 
 // Load environment variables from .env file
 dotenv.config();
 
-const app = express();
 const port = process.env.PORT || 3000;
-
-// Add middleware to the app
-app.use(requestLogger);
-app.use(fileParser);
-app.use(cors({ origin: true }));
-app.use(bodyParser.urlencoded({ extended: true }));
 
 // Add routes to the app
 const openRoutes = Router();
 openRoutes.use('/v1/health', health.v1);
 
 const protectedRoutes = Router();
+protectedRoutes.use(authGuard);
 protectedRoutes.use('/v1/campaign', campaign.v1);
 
 const apiRoutes = Router();
 apiRoutes.use(openRoutes);
 apiRoutes.use(protectedRoutes);
+apiRoutes.use(requestErrorHandler);
+apiRoutes.use(requestLogger);
+apiRoutes.use(fileParser);
+apiRoutes.use(cors({ origin: true }));
+apiRoutes.use(bodyParser.urlencoded({ extended: true }));
 
+const app = express();
 app.use('/api', apiRoutes);
 
 app.listen(port, () => {

@@ -7,6 +7,6 @@ export const campaignDetails = async (
   res: Response,
   next: NextFunction,
 ) => {
-  logger.info('Retrieving campaign details for id: ', req.params.id);
+  logger.info(`Retrieving campaign details for id: ${req.params.id}`);
   return res.json({ status: 'ok' });
 };

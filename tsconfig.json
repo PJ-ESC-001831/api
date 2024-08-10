@@ -12,7 +12,8 @@
     "paths": {
       "@src/*": ["src/*"],
       "@utils/*": ["src/utils/*"],
-      "@modules/*": ["src/modules/*"]
+      "@modules/*": ["src/modules/*"],
+      "@middleware/*": ["src/middleware/*"]
     }
   },
   "include": ["src/**/*.ts"],
