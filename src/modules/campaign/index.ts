@@ -1,10 +1,10 @@
 import { Router } from 'express';
 
-import { healthCheck } from './controller';
+import { campaignDetails } from './controller';
 
 const route = Router();
 
-route.get('/check', healthCheck);
+route.get('/:id', campaignDetails);
 
 export default {
   v1: route,

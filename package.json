@@ -16,7 +16,9 @@
   "author": "co-maker@tri2b.me",
   "license": "MIT",
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.26",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-multipart-file-parser": "^0.1.2",
     "tsconfig-paths": "^4.2.0",

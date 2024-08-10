@@ -24,10 +24,7 @@ const logFormat = printf(({ level, message, timestamp }) => {
 // Create the logger
 const logger = createLogger({
   level: 'debug', // Default log level
-  format: combine(
-    timestamp({ format: 'HH:mm:ss' }), // Only time as per the example
-    logFormat,
-  ),
+  format: combine(timestamp({ format: 'HH:mm:ss' }), logFormat),
   transports: [
     new transports.Console({
       format: combine(colorize({ level: true }), logFormat),
