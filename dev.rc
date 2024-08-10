@@ -1,0 +1,40 @@
+#!/bin/bash
+
+echo "Loading dev.rc file for the api repository..."
+
+#!/bin/bash
+
+# Function to commit and push changes to Git
+commit_and_push() {
+  if [ -z "$1" ]; then
+    echo "Usage: cap <commit_message>"
+    return 1
+  fi
+
+  local commit_message="$1"
+
+  # Commit changes in the api directory
+  git add . && git commit -m "$commit_message"
+
+  # Commit changes in the root directory
+  cd .. && git add . && git commit -m "$commit_message" && cd api
+
+  # Check if commit was successful
+  if [ $? -ne 0 ]; then
+    echo "Commit failed. Please check for errors."
+    return 1
+  fi
+
+  # Push to the current branch
+  git push
+
+  # Check if push was successful
+  if [ $? -ne 0 ]; then
+    echo "Push failed. Please check for errors."
+    return 1
+  fi
+
+  echo "Changes committed and pushed successfully."
+}
+
+alias cap=commit_and_push
