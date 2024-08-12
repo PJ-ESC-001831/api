@@ -15,7 +15,7 @@ const requestErrorHandler = (
       res.status(401).json({ error: 'Unauthenticated' });
       break;
     default:
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(400).json({ error: 'Something went wrong.' });
   }
 };
 
