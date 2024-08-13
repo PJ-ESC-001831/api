@@ -18,7 +18,8 @@
     "vscode": {
       "extensions": [
         "esbenp.prettier-vscode",
-        "firsttris.vscode-jest-runner"
+        "firsttris.vscode-jest-runner",
+        "bmalehorn.shell-syntax"
       ]
     }
   }
