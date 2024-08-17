@@ -21,6 +21,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-multipart-file-parser": "^0.1.2",
+    "mongoose": "^8.5.3",
     "tsconfig-paths": "^4.2.0",
     "winston": "^3.14.1"
   },

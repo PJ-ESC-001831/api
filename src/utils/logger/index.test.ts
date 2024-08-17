@@ -1,4 +1,4 @@
-import logger from './index';
+import logger, { labeledLogger } from './index';
 
 describe('logger', () => {
   beforeAll(() => {
@@ -15,5 +15,11 @@ describe('logger', () => {
     const logSpy = jest.spyOn(logger, 'info');
     logger.info({ message: 'Test message', word: 'tree' });
     expect(logSpy).toHaveBeenCalled();
+  });
+
+  it('should create a labelled logger', () => {
+    const log = labeledLogger('test');
+    log.info('Test message');
+    expect(log).toBeDefined();
   });
 });

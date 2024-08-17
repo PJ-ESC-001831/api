@@ -1,7 +1,7 @@
 import { createLogger, format, transports } from 'winston';
 import winston from 'winston';
 
-const { combine, timestamp, printf, colorize } = format;
+const { combine, timestamp, printf, colorize, label } = format;
 
 // Define custom colours for log levels
 const customColors = {
@@ -16,9 +16,10 @@ const customColors = {
 winston.addColors(customColors);
 
 // Custom format to handle both strings and objects
-const customFormat = printf(({ level, message, timestamp }) => {
+const customFormat = printf(({ level, message, timestamp, label }) => {
   let logMessage = {
     timestamp,
+    label,
     level,
     message,
   };
@@ -32,16 +33,27 @@ const customFormat = printf(({ level, message, timestamp }) => {
 });
 
 // Create the logger
-const logger = createLogger({
-  level: 'debug', // Default log level
-  format: combine(timestamp({ format: 'HH:mm:ss' }), customFormat),
-  transports: [
-    new transports.Console({
-      format: combine(colorize({ level: true }), customFormat),
-    }),
-    new transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new transports.File({ filename: 'logs/combined.log' }),
-  ],
-});
+const defaultLogger = (location: string | null = null) =>
+  createLogger({
+    level: 'debug', // Default log level
+    format: combine(
+      label({ label: location ?? 'default' }),
+      timestamp({ format: 'HH:mm:ss' }),
+      customFormat,
+    ),
+    transports: [
+      new transports.Console({
+        format: combine(customFormat),
+      }),
+      new transports.File({ filename: 'logs/error.log', level: 'error' }),
+      new transports.File({ filename: 'logs/combined.log' }),
+    ],
+  });
 
-export default logger;
+// This labelled logger will typically be used in a class or module.
+export const labeledLogger = (location: string) => {
+  return defaultLogger(location);
+};
+
+// This default logger will be used in the rest of the application.
+export default defaultLogger();

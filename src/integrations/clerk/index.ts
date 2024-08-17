@@ -1,6 +1,21 @@
-import clerk from '@clerk/clerk-sdk-node';
+import { clerkClient } from '@clerk/clerk-sdk-node';
 
 import { NewUser } from './types';
+import logger from '@src/utils/logger';
+
+export class Clerk {
+  constructor(
+    private readonly client = clerkClient,
+    private readonly logger = logger,
+  ) {}
+}
+
+export const sendSignInLink = async (emailAddress: string) => {
+  const emailInstance = await clerkClient.emailAddresses.createEmailAddress({
+    userId: 'user_123',
+    emailAddress,
+  });
+};
 
 export const registerUser = async ({
   emailAddress: email,
@@ -9,7 +24,7 @@ export const registerUser = async ({
   lastName,
   phoneNumber,
 }: NewUser) => {
-  const user = await clerk.clerkClient.users.createUser({
+  const user = await clerkClient.users.createUser({
     emailAddress: [email],
     phoneNumber: [phoneNumber],
     password,
