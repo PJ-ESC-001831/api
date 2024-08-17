@@ -1,23 +1,20 @@
 import dotenv from 'dotenv';
-import { registerUser } from './index';
+import { Clerk } from './index';
 
 dotenv.config();
 
 describe('clerk', () => {
-  beforeAll(() => {
+  let service: Clerk;
+  beforeEach(() => {
+    service = new Clerk();
     jest.resetAllMocks();
   });
 
-  describe('registerUser', () => {
-    it('should register a new user', async () => {
-      const user = await registerUser({
-        emailAddress: 'co-maker@tri2b.me',
-        password: 'password',
-        firstName: 'John',
-        lastName: 'Doe',
-        phoneNumber: '+27721535649',
-      });
-      expect(user).toBeDefined();
+  describe('inviteUser', () => {
+    it('should create an invitation', async () => {
+      const email = 'jacques@mohara.co';
+      const invitation = await service.inviteUser({ emailAddress: email });
+      expect(invitation).toBeDefined();
     });
   });
 });
