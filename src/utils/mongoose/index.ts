@@ -1,26 +1,30 @@
-import mongoose from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
+import { labeledLogger } from '../logger';
 
-const uri = process.env.MONGODB_URI || 'your-default-mongodb-uri';
+const { info, error } = labeledLogger('utils:Mongoose');
 
-export async function connectToDatabase() {
+export const getDatabaseConnection = async (): Promise<Connection> => {
   try {
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('Connected to MongoDB with Mongoose');
-  } catch (error) {
-    console.error('Failed to connect to MongoDB with Mongoose', error);
-    throw error;
-  }
-}
+    const uri = process.env.MONGODB_URI;
 
-export async function closeDatabaseConnection() {
-  try {
-    await mongoose.connection.close();
-    console.log('Disconnected from MongoDB with Mongoose');
-  } catch (error) {
-    console.error('Failed to disconnect from MongoDB with Mongoose', error);
-    throw error;
+    if (!uri) {
+      throw new MongoUriNotSetException();
+    }
+
+    info('Creating Mongoose connection to MongoDB.');
+    const conn = await mongoose.createConnection(uri, {}).asPromise();
+
+    conn.on('connected', () => info('Connection established successfully.'));
+    conn.on('open', () => info('Connection opened.'));
+    conn.on('disconnected', () => info('Connection disconnected.'));
+    conn.on('reconnected', () => info('Connection reconnected.'));
+    conn.on('disconnecting', () => info('Disconnecting from MongoDB.'));
+    conn.on('close', () => info('Connection closed.'));
+    conn.on('error', (e) => error('Error occurred:', e));
+
+    return conn;
+  } catch (e) {
+    error('Failed to connect to MongoDB with Mongoose', e);
+    throw e;
   }
-}
+};
