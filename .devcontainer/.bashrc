@@ -8,11 +8,22 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-# Custom prompt settings
-PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+# Load Git prompt script if available
+if [ -f /usr/share/git/git-prompt.sh ]; then
+    . /usr/share/git/git-prompt.sh
+elif [ -f /etc/bash_completion.d/git-prompt ]; then
+    . /etc/bash_completion.d/git-prompt
+fi
+
+# Custom prompt settings with colour and Git info
+# Colours: \[\033[<style>;<colour>m\]
+# Reset: \[\033[0m\]
+# \u = username, \h = hostname, \w = current working directory, \$(__git_ps1) = Git branch info
+PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]\$ '
 
 # Enable color support for ls and add handy aliases
 if [ -x /usr/bin/dircolors ]; then
+    # Load dircolors if ~/.dircolors exists; otherwise, use default settings
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
     alias dir='dir --color=auto'
@@ -23,11 +34,11 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # Some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
+alias ll='ls -alF'  # List all files in long format with file type indicators
+alias la='ls -A'    # List all files except . and ..
+alias l='ls -CF'    # List files in columns, with classification indicators
 
-# Add an "alert" alias for long running commands.  Use like so:
+# Add an "alert" alias for long running commands. Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history | tail -n1 | sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
@@ -113,3 +124,6 @@ if [ -d "$HOME/.bashrc.d" ]; then
         [ -r "$script" ] && . "$script"
     done
 fi
+
+# Source custom development configuration
+source /workspace/dev.rc

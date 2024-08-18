@@ -1,15 +1,24 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
+    "target": "ES2020",
+    "module": "CommonJS",
+    "lib": ["ES2020"],
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
-    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "baseUrl": "./",
-    "outDir": "./dist",
-    "rootDir": "./src",
     "paths": {
       "@src/*": ["src/*"],
       "@utils/*": ["src/utils/*"],
@@ -17,6 +26,6 @@
       "@middleware/*": ["src/middleware/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
