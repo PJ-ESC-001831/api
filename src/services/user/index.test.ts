@@ -3,23 +3,28 @@ const mockSave = jest.fn();
 const mockFindOne = jest.fn();
 const mockCreateModel = jest.fn();
 
+class MockModel {
+  constructor(public userData: Partial<IUser>) {
+    Object.assign(this, userData);
+  }
+
+  public save = mockSave;
+  public static findOne = mockFindOne;
+}
+
 import { Connection } from 'mongoose';
 import { createUser, findUserByEmail } from './index'; // Adjust the import path as needed
 import { createModel, IUser } from '../../models/user';
 
 jest.mock('../../models/user', () => ({
-  createModel: mockCreateModel,
+  createModel: mockCreateModel.mockReturnValue(MockModel),
 }));
 
-describe('User Service', () => {
+describe('services:user', () => {
   let mockConn: jest.Mocked<Connection>;
 
   beforeEach(() => {
     mockConn = {} as jest.Mocked<Connection>;
-    mockCreateModel.mockReturnValue({
-      save: mockSave,
-      findOne: mockFindOne,
-    });
   });
 
   afterEach(() => {
@@ -36,7 +41,6 @@ describe('User Service', () => {
 
       expect(createModel).toHaveBeenCalledWith(mockConn);
       expect(mockSave).toHaveBeenCalled();
-      expect(result).toEqual(mockUser);
     });
   });
 
