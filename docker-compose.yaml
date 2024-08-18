@@ -10,6 +10,7 @@ services:
     volumes:
       - .:/workspace:cached
       - ~/.ssh:/root/.ssh:cached
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - '3000:3000'
 
