@@ -22,10 +22,8 @@
         "bmalehorn.shell-syntax",
         "mhutchie.git-graph",
         "ms-azuretools.vscode-docker",
-        "ms-ossdata.vscode-postgresql",
         "streetsidesoftware.code-spell-checker",
-        "vivaxy.vscode-conventional-commits",
-        "ckolkman.vscode-postgres"
+        "vivaxy.vscode-conventional-commits"
       ]
     }
   }

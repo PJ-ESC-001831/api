@@ -23,7 +23,8 @@
       "@src/*": ["src/*"],
       "@utils/*": ["src/utils/*"],
       "@modules/*": ["src/modules/*"],
-      "@middleware/*": ["src/middleware/*"]
+      "@middleware/*": ["src/middleware/*"],
+      "@database/*": ["src/database/*"]
     }
   },
   "include": ["src/**/*"],
