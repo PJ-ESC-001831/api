@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import logger from '@utils/logger';
+import logger from '@modules/logger';
 
 export const healthCheck = async (req: Request, res: Response) => {
   logger.info('Health check passed');

@@ -1,11 +1,12 @@
-import { Router } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-import { campaignDetails } from './controller';
+import logger from '@modules/logger';
 
-const route = Router();
-
-route.get('/:id', campaignDetails);
-
-export default {
-  v1: route,
+export const campaignDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  logger.info(`Retrieving campaign details for id: ${req.params.id}`);
+  return res.json({ status: 'ok' });
 };

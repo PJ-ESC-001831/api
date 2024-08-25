@@ -1,6 +1,6 @@
 import { clerkClient, Invitation, User } from '@clerk/clerk-sdk-node';
 import { NewUser } from './types';
-import { labeledLogger } from '@src/utils/logger';
+import { labeledLogger } from '@modules/logger';
 
 /**
  * Clerk service class to handle user and invitation management.

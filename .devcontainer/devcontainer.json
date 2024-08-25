@@ -25,7 +25,8 @@
         "ms-ossdata.vscode-postgresql",
         "streetsidesoftware.code-spell-checker",
         "vivaxy.vscode-conventional-commits",
-        "ckolkman.vscode-postgres"
+        "ckolkman.vscode-postgres",
+        "ms-mssql.mssql"
       ]
     }
   }

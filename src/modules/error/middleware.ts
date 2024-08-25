@@ -1,6 +1,6 @@
 // src/middleware/logger.ts
 import { NextFunction, Request, Response } from 'express';
-import logger from '@utils/logger';
+import logger from '@modules/logger';
 
 const requestErrorHandler = (
   error: any,
