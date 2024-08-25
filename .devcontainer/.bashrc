@@ -125,17 +125,5 @@ if [ -d "$HOME/.bashrc.d" ]; then
     done
 fi
 
-# Trust all directories in the workspace
-
-# Parent directory
-PARENT_DIR="/workspace"
-
-# Iterate over each subdirectory in the parent directory
-for dir in "$PARENT_DIR"/*; do
-  if [ -d "$dir" ]; then
-    git config --global --add safe.directory "$dir"
-  fi
-done
-
 # Source custom development configuration
 source /workspace/dev.rc

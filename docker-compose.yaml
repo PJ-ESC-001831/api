@@ -1,4 +1,4 @@
-name: api
+version: '3.8'
 
 services:
   api:
@@ -8,8 +8,8 @@ services:
     restart: on-failure
     tty: true
     volumes:
-      - ..:/workspace:cached
-      - ${HOME}/.ssh:/root/.ssh:cached
+      - .:/workspace:cached
+      - ~/.ssh:/root/.ssh:cached
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - '3000:3000'

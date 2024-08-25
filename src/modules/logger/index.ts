@@ -1,7 +1,7 @@
 import { createLogger, format, transports } from 'winston';
 import winston from 'winston';
 
-const { combine, timestamp, printf, colorize, label } = format;
+const { combine, timestamp, printf, label } = format;
 
 // Define custom colours for log levels
 const customColors = {
