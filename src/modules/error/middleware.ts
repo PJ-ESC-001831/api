@@ -6,18 +6,17 @@ const logger = labeledLogger('middleware');
 
 const requestErrorHandler = (
   error: any,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction,
-): void => {
+  _next: NextFunction,
+) => {
   logger.error(`${error.stack}`);
 
   switch (error.message) {
     case 'Unauthenticated':
-      res.status(401).json({ error: 'Unauthenticated' });
-      break;
+      return res.status(401).json({ error: 'Unauthenticated' });
     default:
-      res.status(400).json({ error: 'Something went wrong.' });
+      return res.status(400).json({ error: 'Something went wrong.' });
   }
 };
 

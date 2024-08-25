@@ -13,7 +13,7 @@ import health from '@modules/health/routes';
 import campaign from '@modules/campaign/routes';
 
 // Import middleware
-import authGuard from '@modules/auth';
+import authGuard from '@modules/auth/middleware';
 import requestLogger from '@modules/logger/middleware';
 import requestErrorHandler from '@modules/error/middleware';
 

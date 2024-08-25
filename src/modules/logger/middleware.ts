@@ -6,7 +6,7 @@ const logger = labeledLogger('middleware');
 
 const requestLogger = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ): void => {
   logger.info(`${req.method.toUpperCase()} ${req.url}`);

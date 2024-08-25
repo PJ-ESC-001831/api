@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { Clerk } from './index';
+import { AuthService } from '../../service';
 import { clerkClient, Invitation, User } from '@clerk/clerk-sdk-node';
 
 dotenv.config();
@@ -15,11 +15,11 @@ jest.mock('@clerk/clerk-sdk-node', () => ({
   },
 }));
 
-describe('Clerk Service', () => {
-  let service: Clerk;
+describe('AuthService Service', () => {
+  let service: AuthService;
 
   beforeEach(() => {
-    service = new Clerk();
+    service = new AuthService();
     jest.resetAllMocks();
   });
 

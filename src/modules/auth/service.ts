@@ -5,7 +5,7 @@ import { labeledLogger } from '@modules/logger';
 /**
  * Clerk service class to handle user and invitation management.
  */
-export class Clerk {
+export class AuthService {
   private readonly client = clerkClient;
   private readonly logger = labeledLogger(this.constructor.name);
 

@@ -1,5 +1,5 @@
 import { Connection } from 'mongoose';
-import { createModel, IUser } from '../../models/user';
+import { users } from '@schema/User';
 
 /**
  * Creates a new user in the database.
@@ -10,8 +10,8 @@ import { createModel, IUser } from '../../models/user';
  */
 export async function createUser(
   conn: Connection,
-  userData: Partial<IUser>,
-): Promise<IUser> {
+  userData: Partial<typeof users>,
+): Promise<Partial<typeof users>> {
   const User = createModel(conn);
   const user = new User(userData);
   await user.save();
