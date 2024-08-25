@@ -22,7 +22,7 @@
     "paths": {
       "@src/*": ["src/*"],
       "@modules/*": ["src/modules/*"],
-      "@schema/*": ["src/database/schema/*"],
+      "@database/*": ["src/database/*"]
     }
   },
   "include": ["src/**/*"],
