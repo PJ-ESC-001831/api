@@ -1,6 +1,7 @@
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 
-import { labeledLogger } from '../logger';
+import { labeledLogger } from '@modules/logger';
 
 const { info, error } = labeledLogger('utils:drizzle');
 
@@ -24,7 +25,7 @@ const configureClient = async () => {
     await clientConfig.connect();
 
     info('Drizzle client connection established.');
-    return clientConfig;
+    return drizzle(clientConfig);
   } catch (e) {
     error('Drizzle client configuration failed.', e);
     throw e;

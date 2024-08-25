@@ -21,10 +21,7 @@
     "baseUrl": "./",
     "paths": {
       "@src/*": ["src/*"],
-      "@utils/*": ["src/utils/*"],
       "@modules/*": ["src/modules/*"],
-      "@middleware/*": ["src/middleware/*"],
-      "@database/*": ["src/database/*"]
     }
   },
   "include": ["src/**/*"],

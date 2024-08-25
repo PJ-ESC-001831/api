@@ -1,4 +1,4 @@
-import logger, { labeledLogger } from './index';
+import logger, { labeledLogger } from '@modules/logger';
 
 describe('logger', () => {
   beforeAll(() => {
