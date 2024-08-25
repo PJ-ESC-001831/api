@@ -4,16 +4,18 @@ import fileParser from 'express-multipart-file-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-import logger from '@utils/logger';
+import {labeledLogger} from '@modules/logger';
+
+const logger = labeledLogger('root');
 
 // Import routes
-import health from '@modules/health';
-import campaign from '@modules/campaign';
+import health from '@modules/health/routes';
+import campaign from '@modules/campaign/routes';
 
 // Import middleware
-import authGuard from '@middleware/auth';
-import requestLogger from '@middleware/logger';
-import requestErrorHandler from '@middleware/error';
+import authGuard from '@modules/auth';
+import requestLogger from '@modules/logger/middleware';
+import requestErrorHandler from '@modules/error/middleware';
 
 // Load environment variables from .env file
 dotenv.config();

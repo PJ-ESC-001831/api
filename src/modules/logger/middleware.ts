@@ -1,6 +1,8 @@
 // src/middleware/logger.ts
 import { Request, Response, NextFunction } from 'express';
-import logger from '@modules/logger';
+import {labeledLogger} from '@modules/logger';
+
+const logger = labeledLogger('middleware');
 
 const requestLogger = (
   req: Request,

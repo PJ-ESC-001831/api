@@ -7,6 +7,8 @@ RUN apt-get update && \
   bash \
   ca-certificates \
   curl \
+  postgresql-client \
+  iputils-ping \
   gnupg \
   lsb-release && \
   apt-get clean && \
