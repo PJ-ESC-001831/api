@@ -21,17 +21,22 @@ import requestErrorHandler from '@modules/error/middleware';
 dotenv.config();
 
 const port = process.env.PORT || 3000;
+const isDev = (process.env.NODE_ENV || 'development') === 'development';
 
 // Add routes to the app
-const openRoutes = Router();
-openRoutes.use('/v1/health', health.v1);
+const unprotectedRoutes = Router();
+unprotectedRoutes.use('/v1/health', health.v1);
 
 const protectedRoutes = Router();
-protectedRoutes.use(authGuard);
 protectedRoutes.use('/v1/campaign', campaign.v1);
 
+// Only add the authGuard middleware if we are not in the development environment
+if (!isDev) {
+  protectedRoutes.use(authGuard);
+}
+
 const apiRoutes = Router();
-apiRoutes.use(openRoutes);
+apiRoutes.use(unprotectedRoutes);
 apiRoutes.use(protectedRoutes);
 apiRoutes.use(requestErrorHandler);
 apiRoutes.use(requestLogger);
