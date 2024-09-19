@@ -4,7 +4,8 @@ import fileParser from 'express-multipart-file-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-import {labeledLogger} from '@modules/logger';
+import { labeledLogger } from '@modules/logger';
+import env from '@modules/env';
 
 const logger = labeledLogger('root');
 
@@ -21,7 +22,6 @@ import requestErrorHandler from '@modules/error/middleware';
 dotenv.config();
 
 const port = process.env.PORT || 3000;
-const isDev = (process.env.NODE_ENV || 'development') === 'development';
 
 // Add routes to the app
 const unprotectedRoutes = Router();
@@ -31,7 +31,7 @@ const protectedRoutes = Router();
 protectedRoutes.use('/v1/campaign', campaign.v1);
 
 // Only add the authGuard middleware if we are not in the development environment
-if (!isDev) {
+if (!(env.NODE_ENV === 'development')) {
   protectedRoutes.use(authGuard);
 }
 
