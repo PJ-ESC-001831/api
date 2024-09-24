@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { campaignDetails, createCampaign } from '.';
+import { campaignDetails, createCampaign } from './controller';
 import { validate } from '@utils/validation';
 import { createCampaignRequestSchema } from './validation';
 
