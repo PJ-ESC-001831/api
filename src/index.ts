@@ -36,13 +36,15 @@ if (!(env.NODE_ENV === 'development')) {
 }
 
 const apiRoutes = Router();
-apiRoutes.use(unprotectedRoutes);
-apiRoutes.use(protectedRoutes);
+apiRoutes.use(express.json());
 apiRoutes.use(requestErrorHandler);
 apiRoutes.use(requestLogger);
 apiRoutes.use(fileParser);
 apiRoutes.use(cors({ origin: true }));
 apiRoutes.use(bodyParser.urlencoded({ extended: true }));
+
+apiRoutes.use(unprotectedRoutes);
+apiRoutes.use(protectedRoutes);
 
 const app = express();
 app.use('/api', apiRoutes);

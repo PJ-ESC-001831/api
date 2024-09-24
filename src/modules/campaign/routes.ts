@@ -1,11 +1,12 @@
 import { Router } from 'express';
 
-import { campaignDetails } from '.';
-import { createCampaign } from './service';
+import { campaignDetails, createCampaign } from '.';
+import { validate } from '@utils/validation';
+import { createCampaignRequestSchema } from './validation';
 
 const route = Router();
 
-route.post('/', createCampaign);
+route.use(validate(createCampaignRequestSchema)).post('/', createCampaign);
 route.get('/:id', campaignDetails);
 
 export default {

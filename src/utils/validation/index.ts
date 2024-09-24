@@ -18,7 +18,7 @@ export const validate =
     } catch (error) {
       if (error instanceof ZodError) {
         logger.error('Validation failed:', error.errors);
-        res.status(400).json({ error: error.errors });
+        res.status(422).json({ error: error.errors });
       } else {
         logger.error('Unexpected error during validation:', error);
         res.status(500).json({ error: 'Internal Server Error' });

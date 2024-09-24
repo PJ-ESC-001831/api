@@ -12,7 +12,7 @@ export const campaignDetails = async (
 };
 
 export const createCampaign = async (
-  req: Request,
+  _req: Request,
   res: Response,
   _next: NextFunction,
 ) => {

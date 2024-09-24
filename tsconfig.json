@@ -22,7 +22,8 @@
     "paths": {
       "@src/*": ["src/*"],
       "@modules/*": ["src/modules/*"],
-      "@database/*": ["src/database/*"]
+      "@database/*": ["src/database/*"],
+      "@utils/*": ["src/utils/*"]
     }
   },
   "include": ["src/**/*"],
