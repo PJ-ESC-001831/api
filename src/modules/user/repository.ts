@@ -16,3 +16,16 @@ export async function createUser(
 ): Promise<any> {
   return db.insert(users).values(userData);
 }
+
+/**
+ * 
+ * @param userId 
+ * @param db 
+ * @returns 
+ */
+// export async function createSeller(
+//   userId: number,
+//   db: NodePgDatabase,
+// ): Promise<any> {
+//   return db.insert(sellers).values({ userId });
+// }
