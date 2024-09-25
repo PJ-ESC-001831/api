@@ -1,6 +1,7 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
-import { users, sellers } from '@database/schema/users';
+import { users } from '@database/schema/users';
+import { sellers } from '@database/schema/sellers';
 import { User } from './types';
 
 /**

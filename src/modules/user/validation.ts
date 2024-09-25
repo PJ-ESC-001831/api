@@ -7,4 +7,5 @@ export const createUserRequestSchema = z.object({
   firstName: z.string().min(1).max(256),
   lastName: z.string().min(1).max(256),
   profile: z.object({}).optional(),
+  userType: z.enum(['seller', 'buyer', 'admin']),
 });

@@ -12,6 +12,7 @@ const logger = labeledLogger('root');
 // Import routes
 import health from '@modules/health/routes';
 import campaign from '@modules/campaign/routes';
+import user from '@modules/user/routes';
 
 // Import middleware
 import authGuard from '@modules/auth/middleware';
@@ -29,6 +30,7 @@ unprotectedRoutes.use('/v1/health', health.v1);
 
 const protectedRoutes = Router();
 protectedRoutes.use('/v1/campaign', campaign.v1);
+protectedRoutes.use('/v1/user', user.v1);
 
 // Only add the authGuard middleware if we are not in the development environment
 if (!(env.NODE_ENV === 'development')) {
