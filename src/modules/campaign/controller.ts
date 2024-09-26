@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 import { labeledLogger } from '@modules/logger';
-import { createCampaign as createNewCampaign } from '.';
+import { createCampaign as createNewCampaign, getCampaignById } from '.';
 
 const logger = labeledLogger('module:campaign/controller');
 
@@ -19,7 +19,8 @@ export const campaignDetails = async (
   _next: NextFunction,
 ): Promise<void> => {
   logger.info(`Retrieving campaign details for id: ${req.params.id}`);
-  res.json({ status: 'ok' });
+  const result = await getCampaignById(parseInt(req.params.id, 10));
+  res.json({ data: 'ok' });
 };
 
 /**
@@ -27,7 +28,7 @@ export const campaignDetails = async (
  *
  * @param {Request} req The request object (unused).
  * @param {Response} res The response object used to send the response.
- * @param {NextFunction} _next The next middleware function in the stack (unused).
+ * @param {NextFunction} next The next middleware function in the stack (unused).
  * @return {Promise<void>} A promise that resolves to void.
  */
 export const createCampaign = async (
@@ -45,6 +46,7 @@ export const createCampaign = async (
       },
     });
   } catch (error) {
+    logger.error(`Failed to create campaign: ${error}`);
     next(error);
   }
 };

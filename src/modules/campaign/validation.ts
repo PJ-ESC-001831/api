@@ -39,3 +39,15 @@ export const createCampaignRequestSchema = z.object({
    */
   sellerId: z.number().int().positive(),
 });
+
+/**
+ * Schema for validating the request to get a campaign by ID.
+ */
+export const getCampaignByIdRequestSchema = z.object({
+  /**
+   * The ID of the campaign to retrieve.
+   *
+   * @example 1
+   */
+  id: z.number().int().positive(),
+});
