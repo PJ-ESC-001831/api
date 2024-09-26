@@ -38,10 +38,10 @@ export const createCampaign = async (
   const { ...campaignData } = req.body;
 
   try {
-    const result = await createNewCampaign(campaignData);
+    const [{ id }] = await createNewCampaign(campaignData);
     res.status(200).json({
       data: {
-        campaign: result,
+        id,
       },
     });
   } catch (error) {

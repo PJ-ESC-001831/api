@@ -11,9 +11,13 @@ const database = new DbConnection().configure();
  *
  * @param {Campaign} campaignData The data of the campaign to create.
  * @return {Promise<any>} A promise that resolves when the campaign is created.
- */
+*/
 export async function createCampaign(campaignData: Campaign): Promise<any> {
   logger.info('Creating campaign.');
   const db = (await database).getDb();
-  return db.insert(campaigns).values(campaignData);
+  const response = await db
+    .insert(campaigns)
+    .values(campaignData)
+    .returning({ id: campaigns.id });
+  return response;
 }
