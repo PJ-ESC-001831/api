@@ -20,7 +20,7 @@ export const campaignDetails = async (
 ): Promise<void> => {
   logger.info(`Retrieving campaign details for id: ${req.params.id}`);
   const result = await getCampaignById(parseInt(req.params.id, 10));
-  res.json({ data: 'ok' });
+  res.json({ data: result });
 };
 
 /**
