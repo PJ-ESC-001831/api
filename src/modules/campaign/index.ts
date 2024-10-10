@@ -3,6 +3,7 @@ import DbConnection from '@database/client';
 import { labeledLogger } from '../logger';
 import { campaigns } from '@src/database/schema/campaigns';
 import { eq } from 'drizzle-orm';
+import { CampaignNotFoundError } from './errors';
 
 const logger = labeledLogger('module:campaign');
 const database = new DbConnection().configure();
@@ -31,15 +32,34 @@ export async function createCampaign(campaignData: Campaign): Promise<any> {
  */
 export async function getCampaignById(id: number): Promise<any> {
   logger.info(`Retrieving campaign with id ${id}.`);
-  const db = (await database).getDb();
-  return db
-    ?.select({
-      id: campaigns.id,
-      title: campaigns.title,
-      description: campaigns.description,
-      createdAt: campaigns.createdAt,
-    })
-    .from(campaigns)
-    .where(eq(campaigns.id, id))
-    .execute();
+
+  try {
+    const db = (await database).getDb();
+
+    // Perform the query and limit the results to one
+    const entry = await db
+      ?.select({
+        id: campaigns.id,
+        title: campaigns.title,
+        description: campaigns.description,
+        createdAt: campaigns.createdAt,
+      })
+      .from(campaigns)
+      .where(eq(campaigns.id, id))
+      .limit(1)
+      .execute();
+
+    // Check if entry is undefined or empty
+    if (!entry || entry.length === 0) {
+      logger.warn(`Campaign with id ${id} not found.`);
+      return null; // Return null if no campaign found
+    }
+
+    return entry[0]; // Return the first campaign object
+  } catch (error) {
+    const message = (error as Error).message;
+    logger.error(`Error retrieving campaign with id ${id}: ${message}`);
+    throw new CampaignNotFoundError();
+  }
 }
+
