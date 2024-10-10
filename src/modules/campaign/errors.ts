@@ -4,3 +4,10 @@ export class CampaignNotFoundError extends Error {
     this.name = 'CampaignNotFoundError';
   }
 }
+
+export class FailedToCreateCampaignError extends Error {
+  constructor(message = 'Failed to create campaign.') {
+    super(message);
+    this.name = 'FailedToCreateCampaignError';
+  }
+}

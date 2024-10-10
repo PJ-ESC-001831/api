@@ -3,7 +3,7 @@ import DbConnection from '@database/client';
 import { labeledLogger } from '../logger';
 import { campaigns } from '@src/database/schema/campaigns';
 import { eq } from 'drizzle-orm';
-import { CampaignNotFoundError } from './errors';
+import { CampaignNotFoundError, FailedToCreateCampaignError } from './errors';
 
 const logger = labeledLogger('module:campaign');
 const database = new DbConnection().configure();
@@ -16,12 +16,34 @@ const database = new DbConnection().configure();
  */
 export async function createCampaign(campaignData: Campaign): Promise<any> {
   logger.info('Creating campaign.');
-  const db = (await database).getDb();
-  const response = await db
-    .insert(campaigns)
-    .values(campaignData)
-    .returning({ id: campaigns.id });
-  return response;
+
+  // Validate campaign data
+  if (!campaignData || !campaignData.title || !campaignData.description) {
+    logger.error('Invalid campaign data provided.');
+    throw new Error('Campaign data must include title and description.');
+  }
+
+  try {
+    const db = (await database).getDb();
+
+    // Insert the campaign and return the newly created campaign ID
+    const response = await db
+      ?.insert(campaigns)
+      .values(campaignData)
+      .returning({ id: campaigns.id })
+      .execute();
+
+    if (!response || response.length === 0) {
+      logger.error('Failed to create campaign.');
+      throw new Error('Failed to create campaign.');
+    }
+
+    logger.info(`Campaign created with ID: ${response[0]?.id}`);
+    return response;
+  } catch (error) {
+    logger.error(`Error creating campaign: ${(error as Error).message}`);
+    throw new FailedToCreateCampaignError();
+  }
 }
 
 /**
@@ -47,13 +69,14 @@ export async function getCampaignById(id: number): Promise<any> {
     // Check if entry is undefined or empty
     if (!entry || entry.length === 0) {
       logger.warn(`Campaign with id ${id} not found.`);
-      return null; // Return null if no campaign found
+      return null;
     }
 
     return entry[0]; // Return the first campaign object
   } catch (error) {
-    const message = (error as Error).message;
-    logger.error(`Error retrieving campaign with id ${id}: ${message}`);
+    logger.error(
+      `Error retrieving campaign with id ${id}: ${(error as Error).message}`,
+    );
     throw new CampaignNotFoundError();
   }
 }
