@@ -38,12 +38,7 @@ export async function getCampaignById(id: number): Promise<any> {
 
     // Perform the query and limit the results to one
     const entry = await db
-      ?.select({
-        id: campaigns.id,
-        title: campaigns.title,
-        description: campaigns.description,
-        createdAt: campaigns.createdAt,
-      })
+      ?.select()
       .from(campaigns)
       .where(eq(campaigns.id, id))
       .limit(1)
