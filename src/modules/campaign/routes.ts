@@ -1,12 +1,12 @@
 import { Router } from 'express';
 
 import { campaignDetails, createCampaign } from './controller';
-import { validateObject } from '@utils/validation';
-import {
-  createCampaignRequestSchema,
-  getCampaignByIdRequestSchema,
-} from './validation';
-import { ObjectsToValidate } from '@src/utils/validation/enums';
+// import { validateObject } from '@utils/validation';
+// import {
+//   createCampaignRequestSchema,
+//   getCampaignByIdRequestSchema,
+// } from './validation';
+// import { ObjectsToValidate } from '@src/utils/validation/enums';
 
 const route = Router();
 
@@ -15,7 +15,7 @@ const route = Router();
  * The ID is passed as a URL parameter.
  */
 route
-  .use(validateObject(getCampaignByIdRequestSchema, ObjectsToValidate.QUERY))
+  // .use(validateObject(getCampaignByIdRequestSchema, ObjectsToValidate.QUERY))
   .get('/:id', campaignDetails);
 
 /**
@@ -23,7 +23,7 @@ route
  * Validates for valid campaign data in the request body.
  */
 route
-  .use(validateObject(createCampaignRequestSchema))
+  // .use(validateObject(createCampaignRequestSchema))
   .post('/', createCampaign);
 
 export default {

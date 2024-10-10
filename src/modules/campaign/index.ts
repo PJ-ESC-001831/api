@@ -32,5 +32,14 @@ export async function createCampaign(campaignData: Campaign): Promise<any> {
 export async function getCampaignById(id: number): Promise<any> {
   logger.info(`Retrieving campaign with id ${id}.`);
   const db = (await database).getDb();
-  return db.select(campaigns).where(eq(campaigns.id, id));
+  return db
+    ?.select({
+      id: campaigns.id,
+      title: campaigns.title,
+      description: campaigns.description,
+      createdAt: campaigns.createdAt,
+    })
+    .from(campaigns)
+    .where(eq(campaigns.id, id))
+    .execute();
 }
