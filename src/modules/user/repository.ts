@@ -3,6 +3,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { users } from '@database/schema/users';
 import { sellers } from '@database/schema/sellers';
 import { User } from './types';
+import { DatabaseNotDefinedError } from './errors';
 
 /**
  * Creates a new user in the database.
@@ -13,9 +14,13 @@ import { User } from './types';
  */
 export async function createUser(
   userData: User,
-  db: NodePgDatabase,
+  db: NodePgDatabase<Record<string, never>> | undefined,
 ): Promise<any> {
-  return db.insert(users).values(userData);
+  if (!db) {
+    throw new DatabaseNotDefinedError();
+  }
+
+  return db?.insert(users).values(userData);
 }
 
 /**
@@ -27,8 +32,12 @@ export async function createUser(
  */
 export async function createSeller(
   userData: User,
-  db: NodePgDatabase,
+  db: NodePgDatabase<Record<string, never>> | undefined,
 ): Promise<any> {
+  if (!db) {
+    throw new DatabaseNotDefinedError();
+  }
+
   try {
     // Insert the user and retrieve the generated ID
     const [newUser] = await db

@@ -4,3 +4,10 @@ export class UserCreationError extends Error {
     this.name = 'UserCreationError';
   }
 }
+
+export class DatabaseNotDefinedError extends Error {
+  constructor(message: string = 'Database connection not defined.') {
+    super(message);
+    this.name = 'DatabaseNotDefinedError';
+  }
+}

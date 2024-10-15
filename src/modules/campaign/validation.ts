@@ -49,5 +49,5 @@ export const getCampaignByIdRequestSchema = z.object({
    *
    * @example 1
    */
-  id: z.number().int().positive(),
+  id: z.string(),
 });
