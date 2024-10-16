@@ -5,6 +5,7 @@ import { campaigns } from '@src/database/schema/campaigns';
 
 /**
  * Creates a new campaign in the database.
+ * 
  * @param {NodePgDatabase<Record<string, never>> | undefined} db The Mongoose connection to use.
  * @param {Campaign} campaignData The new campaign details.
  * @return {Promise<Promise<{ id: number; }[]> | undefined>} A promise that resolves to the created campaign.
@@ -26,6 +27,7 @@ export async function createCampaign(
 
 /**
  * Finds a campaign by its ID.
+ * 
  * @param {NodePgDatabase<Record<string, never>> | undefined} db The Mongoose connection to use.
  * @param {string} id The ID of the campaign to search for.
  * @return {Promise<any>} A promise that resolves to the found campaign or null if not found.
@@ -46,6 +48,7 @@ export async function findCampaignById(
 
 /**
  * Updates a campaign with the given fields.
+ * 
  * @param {NodePgDatabase<Record<string, never>> | undefined} db The Mongoose connection to use.
  * @param {string} campaignId The ID of the campaign to update
  * @param {Partial<Campaign>} updates The fields to update
@@ -55,7 +58,7 @@ export async function updateCampaign(
   db: NodePgDatabase<Record<string, never>> | undefined,
   campaignId: string,
   updates: Partial<Campaign>,
-): Promise<Campaign | null> {
+): Promise<any | null> {
   try {
     // Filter out undefined values from updates
     const updateFields = Object.fromEntries(
@@ -67,7 +70,7 @@ export async function updateCampaign(
     }
 
     // Perform the update
-    const [updatedCampaign] = await db
+    const updatedCampaign = await db
       ?.update(campaigns)
       .set(updateFields)
       .where(eq(campaigns.id, parseInt(campaignId, 10)))
@@ -75,6 +78,6 @@ export async function updateCampaign(
 
     return updatedCampaign || null;
   } catch (error) {
-    throw new Error(`Failed to update campaign: ${error.message}`);
+    throw new Error(`Failed to update campaign: ${(error as Error).message}`);
   }
 }

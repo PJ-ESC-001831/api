@@ -1,10 +1,11 @@
 import { Router } from 'express';
 
-import { campaignDetails, createCampaign } from './controller';
+import { getCampaign, patchCampaign, postCampaign } from './controller';
 import { validateObject } from '@utils/validation';
 import {
   createCampaignRequestSchema,
-  getCampaignByIdRequestSchema,
+  campaignByIdRequestSchema,
+  updateCampaignRequestSchema,
 } from './validation';
 import { ObjectsToValidate } from '@src/utils/validation/enums';
 
@@ -16,15 +17,26 @@ const route = Router();
  */
 route.get(
   '/:id',
-  validateObject(getCampaignByIdRequestSchema, ObjectsToValidate.PARAMS),
-  campaignDetails,
+  validateObject(campaignByIdRequestSchema, ObjectsToValidate.PARAMS),
+  getCampaign,
 );
 
 /**
  * Route for creating a new campaign.
  * Validates for valid campaign data in the request body.
  */
-route.post('/', validateObject(createCampaignRequestSchema), createCampaign);
+route.post('/', validateObject(createCampaignRequestSchema), postCampaign);
+
+/**
+ * Route for updating a campaign by its ID.
+ * Validates for valid campaign data in the request body and a valid ID in the URL.
+ */
+route.patch(
+  '/:id',
+  validateObject(campaignByIdRequestSchema, ObjectsToValidate.PARAMS),
+  validateObject(updateCampaignRequestSchema),
+  patchCampaign,
+);
 
 export default {
   v1: route,

@@ -17,12 +17,6 @@ const database = new DbConnection().configure();
 export async function createCampaign(campaignData: Campaign): Promise<any> {
   logger.info('Creating campaign.');
 
-  // Validate campaign data
-  if (!campaignData || !campaignData.title || !campaignData.description) {
-    logger.error('Invalid campaign data provided.');
-    throw new Error('Campaign data must include title and description.');
-  }
-
   try {
     const db = (await database).getDb();
 
@@ -77,3 +71,39 @@ export async function getCampaignById(id: number): Promise<any> {
   }
 }
 
+/**
+ * Updates a campaign in the database.
+ *
+ * @param {string} campaignId The ID of the campaign to update.
+ * @param {Partial<Campaign>} updates The fields to update.
+ * @return {Promise<Campaign | null>} The updated campaign or null if not found.
+ */
+export async function updateCampaign(
+  campaignId: string,
+  updates: Partial<Campaign>,
+): Promise<Campaign | null> {
+  logger.info(`Updating campaign with ID: ${campaignId}.`);
+
+  try {
+    const db = (await database).getDb();
+
+    const updatedCampaign = await campaignRepository.updateCampaign(
+      db,
+      campaignId,
+      updates,
+    );
+
+    if (!updatedCampaign) {
+      logger.warn(`Campaign with id ${campaignId} not found.`);
+      throw new CampaignNotFoundError();
+    }
+
+    logger.info(`Campaign with ID: ${campaignId} updated successfully.`);
+    return updatedCampaign;
+  } catch (error) {
+    logger.error(
+      `Error updating campaign with ID: ${campaignId}: ${(error as Error).message}`,
+    );
+    throw new Error(`Failed to update campaign: ${(error as Error).message}`);
+  }
+}
