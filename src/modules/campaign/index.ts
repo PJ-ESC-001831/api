@@ -4,13 +4,13 @@ import { labeledLogger } from '../logger';
 import { campaigns } from '@src/database/schema/campaigns';
 import { eq } from 'drizzle-orm';
 import { CampaignNotFoundError, FailedToCreateCampaignError } from './errors';
+import * as campaignRepository from './repository';
 
 const logger = labeledLogger('module:campaign');
 const database = new DbConnection().configure();
 
 /**
  * Creates a new campaign in the database.
- *
  * @param {Campaign} campaignData The data of the campaign to create.
  * @return {Promise<any>} A promise that resolves when the campaign is created.
  */
@@ -27,11 +27,7 @@ export async function createCampaign(campaignData: Campaign): Promise<any> {
     const db = (await database).getDb();
 
     // Insert the campaign and return the newly created campaign ID
-    const response = await db
-      ?.insert(campaigns)
-      .values(campaignData)
-      .returning({ id: campaigns.id })
-      .execute();
+    const response = campaignRepository.createCampaign(db, campaignData);
 
     if (!response || response.length === 0) {
       logger.error('Failed to create campaign.');

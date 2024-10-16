@@ -5,26 +5,76 @@ import { campaigns } from '@src/database/schema/campaigns';
 
 /**
  * Creates a new campaign in the database.
- * @param {NodePgDatabase} conn The Mongoose connection to use.
+ * @param {NodePgDatabase<Record<string, never>> | undefined} db The Mongoose connection to use.
  * @param {Campaign} campaignData The new campaign details.
- * @return {Promise<any>} A promise that resolves to the created campaign.
+ * @return {Promise<Promise<{ id: number; }[]> | undefined>} A promise that resolves to the created campaign.
  */
-export function createCampaign(
+export async function createCampaign(
+  db: NodePgDatabase<Record<string, never>> | undefined,
   campaignData: Campaign,
-  db: NodePgDatabase,
-): Promise<any> {
-  return db.insert(campaigns).values(campaignData);
+): Promise<{ id: number }[] | undefined> {
+  if (!db) {
+    return;
+  }
+
+  return db
+    ?.insert(campaigns)
+    .values(campaignData)
+    .returning({ id: campaigns.id })
+    .execute();
 }
 
 /**
  * Finds a campaign by its ID.
- * @param {NodePgDatabase} conn The Mongoose connection to use.
+ * @param {NodePgDatabase<Record<string, never>> | undefined} db The Mongoose connection to use.
  * @param {string} id The ID of the campaign to search for.
  * @return {Promise<any>} A promise that resolves to the found campaign or null if not found.
  */
-export function findCampaignById(db: NodePgDatabase, id: string): Promise<any> {
+export async function findCampaignById(
+  db: NodePgDatabase<Record<string, never>> | undefined,
+  id: string,
+): Promise<any | undefined> {
+  if (!db) {
+    return Promise.resolve();
+  }
+
   return db
     .select()
     .from(campaigns)
     .where(eq(campaigns.id, parseInt(id, 10)));
+}
+
+/**
+ * Updates a campaign with the given fields.
+ * @param {NodePgDatabase<Record<string, never>> | undefined} db The Mongoose connection to use.
+ * @param {string} campaignId The ID of the campaign to update
+ * @param {Partial<Campaign>} updates The fields to update
+ * @return {Promise<Campaign | null>} The updated campaign or null if not found
+ */
+export async function updateCampaign(
+  db: NodePgDatabase<Record<string, never>> | undefined,
+  campaignId: string,
+  updates: Partial<Campaign>,
+): Promise<Campaign | null> {
+  try {
+    // Filter out undefined values from updates
+    const updateFields = Object.fromEntries(
+      Object.entries(updates).filter(([_, value]) => value !== undefined),
+    );
+
+    if (Object.keys(updateFields).length === 0) {
+      throw new Error('No valid fields provided for update');
+    }
+
+    // Perform the update
+    const [updatedCampaign] = await db
+      ?.update(campaigns)
+      .set(updateFields)
+      .where(eq(campaigns.id, parseInt(campaignId, 10)))
+      .returning();
+
+    return updatedCampaign || null;
+  } catch (error) {
+    throw new Error(`Failed to update campaign: ${error.message}`);
+  }
 }
