@@ -11,3 +11,10 @@ export class FailedToCreateCampaignError extends Error {
     this.name = 'FailedToCreateCampaignError';
   }
 }
+
+export class FailedToUpdateCampaignError extends Error {
+  constructor(message = 'Failed to update campaign.') {
+    super(message);
+    this.name = 'FailedToUpdateCampaignError';
+  }
+}

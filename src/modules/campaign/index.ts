@@ -3,8 +3,13 @@ import DbConnection from '@database/client';
 import { labeledLogger } from '../logger';
 import { campaigns } from '@src/database/schema/campaigns';
 import { eq } from 'drizzle-orm';
-import { CampaignNotFoundError, FailedToCreateCampaignError } from './errors';
+import {
+  CampaignNotFoundError,
+  FailedToCreateCampaignError,
+  FailedToUpdateCampaignError,
+} from './errors';
 import * as campaignRepository from './repository';
+import { adjustCostBase } from './utils';
 
 const logger = labeledLogger('module:campaign');
 const database = new DbConnection().configure();
@@ -20,8 +25,13 @@ export async function createCampaign(campaignData: Campaign): Promise<any> {
   try {
     const db = (await database).getDb();
 
+    const adjustedCampaignData = adjustCostBase(campaignData);
+
     // Insert the campaign and return the newly created campaign ID
-    const response = campaignRepository.createCampaign(db, campaignData);
+    const response = campaignRepository.createCampaign(
+      db,
+      adjustedCampaignData as Campaign,
+    );
 
     if (!response || response.length === 0) {
       logger.error('Failed to create campaign.');
@@ -62,7 +72,9 @@ export async function getCampaignById(id: number): Promise<any> {
       return null;
     }
 
-    return entry[0]; // Return the first campaign object
+    const adjustedEntry = adjustCostBase(entry[0], true);
+
+    return adjustedEntry; // Return the first campaign object
   } catch (error) {
     logger.error(
       `Error retrieving campaign with id ${id}: ${(error as Error).message}`,
@@ -86,11 +98,12 @@ export async function updateCampaign(
 
   try {
     const db = (await database).getDb();
+    const adjustedUpdates = adjustCostBase(updates);
 
     const updatedCampaign = await campaignRepository.updateCampaign(
       db,
       campaignId,
-      updates,
+      adjustedUpdates as Campaign,
     );
 
     if (!updatedCampaign) {
@@ -104,6 +117,8 @@ export async function updateCampaign(
     logger.error(
       `Error updating campaign with ID: ${campaignId}: ${(error as Error).message}`,
     );
-    throw new Error(`Failed to update campaign: ${(error as Error).message}`);
+    throw new FailedToUpdateCampaignError(
+      `Failed to update campaign: ${(error as Error).message}`,
+    );
   }
 }
