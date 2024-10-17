@@ -1,6 +1,11 @@
 import { Router } from 'express';
 
-import { getCampaign, patchCampaign, postCampaign } from './controller';
+import {
+  getCampaign,
+  patchCampaign,
+  postCampaign,
+  postCampaignImages,
+} from './controller';
 import { validateObject } from '@utils/validation';
 import {
   createCampaignRequestSchema,
@@ -20,6 +25,11 @@ route.get(
   validateObject(campaignByIdRequestSchema, ObjectsToValidate.PARAMS),
   getCampaign,
 );
+
+/**
+ * Route for attaching images to a campaign.
+ */
+route.post('/:id/images', postCampaignImages);
 
 /**
  * Route for creating a new campaign.
