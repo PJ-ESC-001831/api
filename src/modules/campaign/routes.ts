@@ -11,6 +11,7 @@ import {
   createCampaignRequestSchema,
   campaignByIdRequestSchema,
   updateCampaignRequestSchema,
+  fileUploadListSchema,
 } from './validation';
 import { ObjectsToValidate } from '@src/utils/validation/enums';
 
@@ -29,7 +30,11 @@ route.get(
 /**
  * Route for attaching images to a campaign.
  */
-route.post('/:id/images', postCampaignImages);
+route.post(
+  '/:id/images',
+  validateObject(fileUploadListSchema, ObjectsToValidate.FILES),
+  postCampaignImages,
+);
 
 /**
  * Route for creating a new campaign.

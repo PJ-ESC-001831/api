@@ -91,3 +91,42 @@ export const updateCampaignRequestSchema = z.object({
    */
   sellerId: z.number().int().positive().optional(),
 });
+
+/**
+ * Schema for a list of file uploads.
+ */
+export const fileUploadListSchema = z.array(
+  z.object({
+    /**
+     * The buffer containing the file data.
+     */
+    buffer: z
+      .any()
+      .refine((value) => value instanceof Buffer && Buffer.byteLength(value) > 0, {
+        message: 'Must be a valid image file',
+      })
+      .refine((value) => Buffer.byteLength(value) <= 10 * 1024 * 1024, {
+        message: 'The image file size must be less than 10 MB',
+      }),
+
+    /**
+     * The encoding type of the file.
+     */
+    encoding: z.string(),
+
+    /**
+     * The field name in the form data.
+     */
+    fieldname: z.string(),
+
+    /**
+     * The MIME type of the file.
+     */
+    mimetype: z.string(),
+
+    /**
+     * The original name of the file.
+     */
+    originalname: z.string(),
+  })
+).min(1);

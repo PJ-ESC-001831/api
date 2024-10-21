@@ -18,4 +18,9 @@ export enum ObjectsToValidate {
    * Represents the query parameters of the request.
    */
   QUERY = 'query',
+
+  /**
+   * Represents the files attached to the request.
+   */
+  FILES = 'files',
 }

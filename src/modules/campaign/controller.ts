@@ -105,7 +105,7 @@ export const patchCampaign = async (
  * Attaches images to a campaign.
  */
 export const postCampaignImages = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<Response | void> => {

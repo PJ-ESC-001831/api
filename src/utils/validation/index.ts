@@ -20,13 +20,16 @@ export const validateObject =
     try {
       logger.debug(`Validating ${objectToValidate} against schema.`);
 
-      let obj: object;
+      let obj: object | undefined;
       switch (objectToValidate) {
         case ObjectsToValidate.PARAMS:
           obj = req.params;
           break;
         case ObjectsToValidate.QUERY:
           obj = req.query;
+          break;
+        case ObjectsToValidate.FILES:
+          obj = req.files;
           break;
         case ObjectsToValidate.BODY:
         default:
