@@ -1,6 +1,10 @@
 FROM node:22.6.0-bullseye-slim
 
-# Install git and other dependencies
+ARG DEV_USER
+ARG UID
+ARG GID
+
+# Install git, sudo, and other dependencies
 RUN apt-get update && \
   apt-get install -y \
   git \
@@ -10,7 +14,8 @@ RUN apt-get update && \
   postgresql-client \
   iputils-ping \
   gnupg \
-  lsb-release && \
+  lsb-release \
+  sudo && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
@@ -26,9 +31,21 @@ RUN mkdir -p /etc/apt/keyrings && \
 # Install the latest version of NPM
 RUN npm install -g npm@latest
 
+# Check UID and GID, rename user and home directory if needed
+RUN if [ $(id -u node) -eq $UID ] && [ $(id -g node) -eq $GID ]; then \
+  usermod -l $DEV_USER -d /home/$DEV_USER -m node && \
+  groupmod -n $DEV_USER node; \
+  else \
+  groupadd -g $GID $DEV_USER && \
+  useradd -m -u $UID -g $GID $DEV_USER; \
+  fi && \
+  echo "$DEV_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
 # Set up bash
-COPY .devcontainer/.bashrc /root/.bashrc
+COPY .devcontainer/.bashrc /home/$DEV_USER/.bashrc
+RUN chown $UID:$GID /home/$DEV_USER/.bashrc
 
 # Set the working directory
 SHELL ["/bin/bash", "-c"]
 WORKDIR /workspace
+USER $DEV_USER

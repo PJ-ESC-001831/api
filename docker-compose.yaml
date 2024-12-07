@@ -1,17 +1,19 @@
-version: '3.8'
-
 services:
   api:
     container_name: pj-esc-001831-api
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - DEV_USER=${DEV_USER:-dev}
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
     restart: on-failure
     tty: true
     volumes:
       - .:/workspace:cached
       - ./.docker/data:/data:cached
-      - ~/.ssh:/root/.ssh:cached
+      - ~/.ssh:/home/${DEV_USER:-dev}/.ssh:cached
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - '3000:3000'
