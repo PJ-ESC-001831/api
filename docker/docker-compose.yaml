@@ -1,0 +1,99 @@
+name: pj-esc-001831
+
+services:
+  api:
+    container_name: pj-esc-001831-api
+    build:
+      context: .
+      dockerfile: ./dockerfiles/api.Dockerfile
+    restart: on-failure
+    tty: true
+    depends_on:
+      storage:
+        condition: service_healthy
+      imgproxy:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./.docker/data:/data:cached
+      - ~/.ssh:/root/.ssh:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - pj-esc-001831-api-network
+  postgres:
+    container_name: pj-esc-001831-postgres
+    build:
+      context: .
+      dockerfile: dockerfiles/postgres.Dockerfile
+    healthcheck:
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 2s
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - pj-esc-001831-api-network
+    volumes:
+      - .docker/postgres/data:/var/lib/postgresql/data
+      - .docker/postgres/certs:/var/lib/postgresql/certs
+  storage:
+    container_name: pj-esc-001831-storage
+    image: supabase/storage-api:v1.11.13
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://storage:5000/status',
+        ]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    restart: unless-stopped
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      # TODO: https://github.com/supabase/storage-api/issues/55
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: 'true'
+      IMGPROXY_URL: http://imgproxy:5001
+    volumes:
+      - .docker/storage:/var/lib/storage:z
+  imgproxy:
+    container_name: pj-esc-001831-imgproxy
+    image: darthsim/imgproxy:v3.8.0
+    healthcheck:
+      test: ['CMD', 'imgproxy', 'health']
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    environment:
+      IMGPROXY_BIND: ':5001'
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
+      IMGPROXY_USE_ETAG: 'true'
+      IMGPROXY_ENABLE_WEBP_DETECTION: ${IMGPROXY_ENABLE_WEBP_DETECTION}
+    volumes:
+      - .docker/imgproxy:/var/lib/storage:z
+networks:
+  pj-esc-001831-api-network:
+    driver: bridge
