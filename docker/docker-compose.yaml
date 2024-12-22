@@ -6,6 +6,11 @@ services:
     build:
       context: ..
       dockerfile: ./docker/dockerfiles/api.Dockerfile
+      args:
+        - NODE_ENV=development
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+        - USERNAME=${USERNAME:-developer}
     restart: on-failure
     tty: true
     depends_on:
@@ -16,7 +21,7 @@ services:
     volumes:
       - ..:/app:cached
       - ./.docker/data:/data:cached
-      - ~/.ssh:/root/.ssh:cached
+      - ~/.ssh:/home/${USERNAME:-developer}/.ssh:cached
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - pj-esc-001831-api-network
@@ -51,8 +56,8 @@ services:
       timeout: 10s
       retries: 3
     ports:
-      - "9000:9000" # MinIO API
-      - "9001:9001" # MinIO Console
+      - '9000:9000' # MinIO API
+      - '9001:9001' # MinIO Console
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: strongpass
