@@ -1,0 +1,69 @@
+name: pj-esc-001831
+
+services:
+  api:
+    container_name: pj-esc-001831-api
+    build:
+      context: ..
+      dockerfile: ./docker/dockerfiles/api.Dockerfile
+      args:
+        - NODE_ENV=development
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+        - USERNAME=${USERNAME:-developer}
+    restart: on-failure
+    tty: true
+    depends_on:
+      storage:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ..:/app:cached
+      - ./.docker/data:/data:cached
+      - ~/.ssh:/home/${USERNAME:-developer}/.ssh:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - pj-esc-001831-api-network
+  postgres:
+    container_name: pj-esc-001831-postgres
+    build:
+      context: ..
+      dockerfile: ./docker/dockerfiles/postgres.Dockerfile
+    healthcheck:
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 2s
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - pj-esc-001831-api-network
+    volumes:
+      - .docker/postgres/data:/var/lib/postgresql/data
+      - .docker/postgres/certs:/var/lib/postgresql/certs
+  storage:
+    image: minio/minio
+    container_name: pj-esc-001831-storage
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: curl -f "http://localhost:9000/minio/health/live"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    ports:
+      - '9000:9000' # MinIO API
+      - '9001:9001' # MinIO Console
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: strongpass
+    volumes:
+      - .docker/minio:/data
+    restart: unless-stopped
+networks:
+  pj-esc-001831-api-network:
+    driver: bridge
