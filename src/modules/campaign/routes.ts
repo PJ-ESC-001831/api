@@ -5,13 +5,13 @@ import {
   patchCampaign,
   postCampaign,
   postCampaignImages,
+  uploadMiddleware
 } from './controller';
 import { validateObject } from '@utils/validation';
 import {
   createCampaignRequestSchema,
   campaignByIdRequestSchema,
   updateCampaignRequestSchema,
-  fileUploadListSchema,
 } from './validation';
 import { ObjectsToValidate } from '@src/utils/validation/enums';
 
@@ -32,7 +32,7 @@ route.get(
  */
 route.post(
   '/:id/images',
-  validateObject(fileUploadListSchema, ObjectsToValidate.FILES),
+  uploadMiddleware,
   postCampaignImages,
 );
 

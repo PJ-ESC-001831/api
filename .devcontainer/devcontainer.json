@@ -32,7 +32,9 @@
         "mhutchie.git-graph",
         "ms-azuretools.vscode-docker",
         "streetsidesoftware.code-spell-checker",
-        "vivaxy.vscode-conventional-commits"
+        "vivaxy.vscode-conventional-commits",
+        "cweijan.dbclient-jdbc",
+        "cweijan.vscode-mysql-client2"
       ]
     }
   }

@@ -13,9 +13,9 @@ import { campaigns } from '@src/database/schema/campaigns';
 export async function createCampaign(
   db: NodePgDatabase<Record<string, never>> | undefined,
   campaignData: Campaign,
-): Promise<{ id: number }[] | undefined> {
+): Promise<{ id: number }[]> {
   if (!db) {
-    return;
+    return [];
   }
 
   return db

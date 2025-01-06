@@ -1,6 +1,5 @@
 import express, { Router } from 'express';
 import bodyParser from 'body-parser';
-import fileParser from 'express-multipart-file-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -41,7 +40,6 @@ const apiRoutes = Router();
 apiRoutes.use(express.json());
 apiRoutes.use(requestErrorHandler);
 apiRoutes.use(requestLogger);
-apiRoutes.use(fileParser);
 apiRoutes.use(cors({ origin: true }));
 apiRoutes.use(bodyParser.urlencoded({ extended: true }));
 

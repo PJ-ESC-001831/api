@@ -28,7 +28,7 @@ export async function createCampaign(campaignData: Campaign): Promise<any> {
     const adjustedCampaignData = adjustCostBase(campaignData);
 
     // Insert the campaign and return the newly created campaign ID
-    const response = campaignRepository.createCampaign(
+    const response = await campaignRepository.createCampaign(
       db,
       adjustedCampaignData as Campaign,
     );
