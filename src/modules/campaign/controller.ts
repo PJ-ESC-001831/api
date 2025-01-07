@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import multer, { File as MulterFile } from 'multer';
 import path from 'path';
+import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
+
 import { getMinioClient } from '@modules/minio';
 import { labeledLogger } from '@modules/logger';
 import {
@@ -8,6 +11,7 @@ import {
   getCampaignById,
   updateCampaign,
 } from '.';
+import { createImage } from '@modules/image/repository';
 
 const logger = labeledLogger('module:campaign/controller');
 
@@ -165,11 +169,22 @@ export const postCampaignImages = async (
           throw new Error(`Unsupported file type: ${fileExtension}`);
         }
 
-        const key = `${campaignId}/${Date.now()}${fileExtension}`;
+        // Generate a unique hash using the current date and original file name
+        const hash = crypto
+          .createHash('sha256')
+          .update(`${Date.now()}-${file.originalname}`)
+          .digest('hex');
+
+        // Generate a UUID
+        const uuid = uuidv4();
+
+        const key = `campaigns/${campaignId}/${hash}${fileExtension}`;
 
         await minioClient.putObject(bucketName, key, file.buffer, file.size, {
           'Content-Type': file.mimetype,
         });
+
+        const databaseEntry = await createImage()
 
         return {
           url: `${process.env.MINIO_USE_SSL === 'true' ? 'https' : 'http'}://${process.env.MINIO_ENDPOINT}/${bucketName}/${key}`,

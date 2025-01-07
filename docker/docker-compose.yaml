@@ -19,7 +19,7 @@ services:
       database:
         condition: service_healthy
     volumes:
-      - ..:/app:cached
+      - ../../:/workspace:cached
       - ./.docker/data:/data:cached
       - ~/.ssh:/home/${USERNAME:-developer}/.ssh:cached
       - /var/run/docker.sock:/var/run/docker.sock
