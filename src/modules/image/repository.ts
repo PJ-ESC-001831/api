@@ -1,6 +1,8 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Image } from './types';
 import { images } from '@src/database/schema/images';
+import UndefinedDatabaseClientError from '@src/lib/errors/UndefinedDatabaseClientError';
+import { FailedToCreateImageEntryError } from './errors';
 
 /**
  * Creates a new image in the database.
@@ -12,14 +14,18 @@ import { images } from '@src/database/schema/images';
 export async function createImage(
   db: NodePgDatabase<Record<string, never>> | undefined,
   imageData: Image,
-): Promise<{ id: number }[]> {
+): Promise<{ id: number }> {
   if (!db) {
-    return [];
+    throw new UndefinedDatabaseClientError();
   }
 
-  return db
+  const image = await db
     ?.insert(images)
     .values(imageData)
     .returning({ id: images.id })
     .execute();
+
+  if (!image || !image.length) throw new FailedToCreateImageEntryError();
+
+  return image[0];
 }

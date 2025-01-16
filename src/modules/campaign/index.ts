@@ -5,11 +5,14 @@ import { campaigns } from '@src/database/schema/campaigns';
 import { eq } from 'drizzle-orm';
 import {
   CampaignNotFoundError,
+  FailedToAddImageToCampaignError,
   FailedToCreateCampaignError,
   FailedToUpdateCampaignError,
 } from './errors';
 import * as campaignRepository from './repository';
 import { adjustCostBase } from './utils';
+import { Image } from '../image/types';
+import { createImage } from '../image/repository';
 
 const logger = labeledLogger('module:campaign');
 const database = new DbConnection().configure();
@@ -48,7 +51,6 @@ export async function createCampaign(campaignData: Campaign): Promise<any> {
 
 /**
  * Retrieves a campaign by its ID.
- *
  * @param {number} id The ID of the campaign to retrieve.
  * @return {Promise<any>} The campaign data.
  */
@@ -85,7 +87,6 @@ export async function getCampaignById(id: number): Promise<any> {
 
 /**
  * Updates a campaign in the database.
- *
  * @param {string} campaignId The ID of the campaign to update.
  * @param {Partial<Campaign>} updates The fields to update.
  * @return {Promise<Campaign | null>} The updated campaign or null if not found.
@@ -106,19 +107,43 @@ export async function updateCampaign(
       adjustedUpdates as Campaign,
     );
 
-    if (!updatedCampaign) {
+    if (!updatedCampaign || updateCampaign.length < 1) {
       logger.warn(`Campaign with id ${campaignId} not found.`);
       throw new CampaignNotFoundError();
     }
 
     logger.info(`Campaign with ID: ${campaignId} updated successfully.`);
-    return updatedCampaign;
+    return updatedCampaign[0];
   } catch (error) {
     logger.error(
       `Error updating campaign with ID: ${campaignId}: ${(error as Error).message}`,
     );
     throw new FailedToUpdateCampaignError(
       `Failed to update campaign: ${(error as Error).message}`,
+    );
+  }
+}
+
+export async function addImageToCampaign(
+  imageData: Image,
+): Promise<Pick<Image, 'id'> | null> {
+  logger.info(
+    `Adding ${imageData.key} image to campaign with ID: ${imageData.campaignId}.`,
+  );
+
+  try {
+    const db = (await database).getDb();
+    const image = await createImage(db, imageData);
+
+    if (!image) throw new Error('There was no image entry created.');
+
+    return image;
+  } catch (error) {
+    logger.error(
+      `Error adding ${imageData.key} image to campaign with ID: ${imageData.campaignId}: ${(error as Error).message}.`,
+    );
+    throw new FailedToAddImageToCampaignError(
+      `Failed to add an image to campaign: ${(error as Error).message}`,
     );
   }
 }

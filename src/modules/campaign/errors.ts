@@ -18,3 +18,19 @@ export class FailedToUpdateCampaignError extends Error {
     this.name = 'FailedToUpdateCampaignError';
   }
 }
+
+export class FailedToAddImageToCampaignError extends Error {
+  constructor(message = 'Failed to add an image to the campaign.') {
+    super(message);
+    this.name = 'FailedToAddImageToCampaignError';
+  }
+}
+
+export class NewBucketError extends Error {
+  constructor(
+    message = 'You were trying to use a bucket that is not yet created. Please retry the request.',
+  ) {
+    super(message);
+    this.name = 'NewBucketError';
+  }
+}

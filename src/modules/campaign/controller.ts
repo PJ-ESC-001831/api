@@ -7,11 +7,15 @@ import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
 import { getMinioClient } from '@modules/minio';
 import { labeledLogger } from '@modules/logger';
 import {
+  addImageToCampaign,
   createCampaign as createNewCampaign,
   getCampaignById,
   updateCampaign,
 } from '.';
-import { createImage } from '@modules/image/repository';
+import { FailedToAddImageToCampaignError, NewBucketError } from './errors';
+import { BucketsEnum } from '@src/constants/buckets';
+import { createBucket } from '@src/utils/minio';
+import { Client, S3Error } from 'minio';
 
 const logger = labeledLogger('module:campaign/controller');
 
@@ -120,7 +124,8 @@ export const patchCampaign = async (
 };
 
 /**
- * Attaches images to a campaign by uploading them to MinIO under a structured path, saving metadata including image URLs and timestamps, and optionally storing the metadata in MinIO as a JSON file.
+ * Attaches images to a campaign by uploading them to MinIO under a structured path, saving metadata including image URLs and timestamps,
+ * and optionally storing the metadata in MinIO as a JSON file.
  * @param {Request} req The request object containing the campaign ID in the parameters and images in the files.
  * @param {Response} res The response object used to send the response to the client.
  * @param {NextFunction} next The next middleware function in the stack for error handling.
@@ -143,7 +148,8 @@ export const postCampaignImages = async (
     return res.status(400).json({ error: 'No files uploaded.' });
   }
 
-  const bucketName = process.env.MINIO_BUCKET_NAME;
+  const bucketName = BucketsEnum.RESOURCES;
+  let minioClient: Client | null = null;
 
   if (!bucketName) {
     logger.error('Missing MINIO_BUCKET_NAME environment variable.');
@@ -152,7 +158,7 @@ export const postCampaignImages = async (
 
   try {
     const files = Array.isArray(req.files) ? req.files : [req.files];
-    const minioClient = getMinioClient();
+    minioClient = getMinioClient();
 
     if (!minioClient) {
       logger.error('Failed to get an instance of the Minio client.');
@@ -172,31 +178,36 @@ export const postCampaignImages = async (
         // Generate a unique hash using the current date and original file name
         const hash = crypto
           .createHash('sha256')
-          .update(`${Date.now()}-${file.originalname}`)
-          .digest('hex');
+          .update(`${file.buffer}${campaignId}`)
+          .digest('hex')
+          .substring(0, 16);
 
         // Generate a UUID
         const uuid = uuidv4();
 
         const key = `campaigns/${campaignId}/${hash}${fileExtension}`;
 
-        await minioClient.putObject(bucketName, key, file.buffer, file.size, {
+        await minioClient?.putObject(bucketName, key, file.buffer, file.size, {
           'Content-Type': file.mimetype,
         });
 
-        const databaseEntry = await createImage()
+        const databaseEntry = await addImageToCampaign({
+          uuid,
+          campaignId: parseInt(campaignId),
+          key,
+          bucket: bucketName,
+        });
 
-        return {
-          url: `${process.env.MINIO_USE_SSL === 'true' ? 'https' : 'http'}://${process.env.MINIO_ENDPOINT}/${bucketName}/${key}`,
-          filename: key,
-        };
+        if (!databaseEntry) throw new FailedToAddImageToCampaignError();
+
+        return databaseEntry;
       }),
     );
 
     // Construct metadata
     const metadata = {
       campaignId,
-      images: uploadedFiles,
+      imageIds: uploadedFiles.map(({ id = -1 }) => id),
       uploadedAt: new Date().toISOString(),
     };
 
@@ -219,6 +230,12 @@ export const postCampaignImages = async (
     });
   } catch (error) {
     logger.error(`Failed to attach images to campaign: ${error}`);
+
+    if (error instanceof S3Error && error.code === 'NoSuchBucket') {
+      await createBucket(bucketName, minioClient);
+      return res.status(404).json({ error: new NewBucketError().message });
+    }
+
     if (error instanceof Error) {
       return res.status(500).json({ error: error.message });
     }
