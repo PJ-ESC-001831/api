@@ -24,4 +24,11 @@ export const createTransactionRequestSchema = z.object({
    * @example 12.00
    */
   amount: z.number().positive(),
+
+  /**
+   * The buyer will be going off platform and going through callbacks for the transactions with third-party integrations. If this happens we need to capture it.
+   *
+   * @example Vs889z
+   */
+  transactionid: z.string().optional(),
 });

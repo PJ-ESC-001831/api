@@ -10,7 +10,7 @@ import {
   FailedToUpdateCampaignError,
 } from './errors';
 import * as campaignRepository from './repository';
-import { adjustCostBase } from './utils';
+import { adjustCostBase } from '@utils/finance';
 import { Image } from '../image/types';
 import { createImage } from '../image/repository';
 

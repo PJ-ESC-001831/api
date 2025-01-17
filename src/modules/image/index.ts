@@ -6,7 +6,6 @@ import {
   FailedToCreateImageEntryError,
   FailedToRetrieveImagesError,
 } from './errors';
-import { getSignedObjectURL } from '../minio';
 
 const logger = labeledLogger('module:image');
 const database = new DbConnection().configure();

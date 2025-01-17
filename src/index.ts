@@ -12,7 +12,7 @@ const logger = labeledLogger('root');
 import health from '@modules/health/routes';
 import campaign from '@modules/campaign/routes';
 import user from '@modules/user/routes';
-import transaction from '@modules/transactions/routes';
+import transaction from '@src/modules/transaction/routes';
 
 // Import middleware
 import authGuard from '@modules/auth/middleware';
