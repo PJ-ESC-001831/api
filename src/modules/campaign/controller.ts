@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 import multer, { File as MulterFile } from 'multer';
 import path from 'path';
 import crypto from 'crypto';
-import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
 
 import {
   getMinioClient,
