@@ -6,7 +6,6 @@ import {
   FailedToGenerateSignedURLError,
   MinioClientNotDefinedError,
 } from './errors';
-import { Client } from '@clerk/clerk-sdk-node';
 
 const logger = labeledLogger('module:minio/index');
 
@@ -63,7 +62,7 @@ export async function createBucket(
  * @throws MinioClientNotDefinedError If the MinIO client is null or undefined.
  * @throws FailedToGenerateSignedURLError If generating the signed URL fails.
  */
-export async function getSignedObjectURL(
+export async function getPublicSharedObjectURL(
   bucketName: string,
   objectName: string,
   minioClient: Minio.Client | null,
@@ -74,7 +73,12 @@ export async function getSignedObjectURL(
   }
 
   try {
-    return await minioClient.presignedGetObject(bucketName, objectName, expiry);
+    return await minioClient.presignedUrl(
+      'GET',
+      bucketName,
+      objectName,
+      expiry,
+    );
   } catch (error) {
     logger.error('Error generating signed URL:', error);
     throw new FailedToGenerateSignedURLError(

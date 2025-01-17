@@ -4,7 +4,11 @@ import path from 'path';
 import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
 
-import { getMinioClient, createBucket } from '@modules/minio';
+import {
+  getMinioClient,
+  createBucket,
+  getPublicSharedObjectURL,
+} from '@modules/minio';
 import { labeledLogger } from '@modules/logger';
 import {
   addImageToCampaign,
@@ -15,6 +19,7 @@ import {
 import { FailedToAddImageToCampaignError, NewBucketError } from './errors';
 import { BucketsEnum } from '@src/constants/buckets';
 import { Client, S3Error } from 'minio';
+import { fetchImagesForCampaign } from '../image';
 
 const logger = labeledLogger('module:campaign/controller');
 
@@ -60,8 +65,18 @@ export const getCampaign = async (
         include.split(',').map((item) => item.trim()),
       );
 
+      // Retrieves a list of image URLs to display in public.
       if (fieldsToInclude.has('images')) {
-        result.images = ['1', '2'];
+        const minioClient = await getMinioClient();
+        const imageList = await fetchImagesForCampaign(
+          parseInt(req.params.id, 10),
+        );
+
+        result.images = await Promise.all(
+          imageList.map(async ({ bucket, key }) => {
+            return getPublicSharedObjectURL(bucket, key, minioClient);
+          }),
+        );
       }
     }
 

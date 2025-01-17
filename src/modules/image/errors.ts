@@ -4,3 +4,10 @@ export class FailedToCreateImageEntryError extends Error {
     this.name = 'FailedToCreateImageEntryError';
   }
 }
+
+export class FailedToRetrieveImagesError extends Error {
+  constructor(message = 'Failed to retrieve images for the given filter.') {
+    super(message);
+    this.name = 'FailedToRetrieveImagesError';
+  }
+}
