@@ -204,13 +204,21 @@ export const postCampaignImages = async (
         const hash = crypto
           .createHash('sha256')
           .update(`${file.buffer}${campaignId}`)
-          .digest('hex')
-          .substring(0, 16);
+          .digest('hex');
 
-        // Generate a UUID
-        const uuid = uuidv4();
+        /*
+         * Generate a UUIDv4-like structure. This is so that the same images have the matching UUIDs and we don't save duplicates.
+         */
+        const uuid = [
+          hash.substring(0, 8),
+          hash.substring(8, 12),
+          '4' + hash.substring(13, 16),
+          ((parseInt(hash[16], 16) & 0x3) | 0x8).toString(16) +
+            hash.substring(17, 20),
+          hash.substring(20, 32),
+        ].join('-');
 
-        const key = `campaigns/${campaignId}/${hash}${fileExtension}`;
+        const key = `campaigns/${campaignId}/${hash.substring(0, 16)}${fileExtension}`;
 
         await minioClient?.putObject(bucketName, key, file.buffer, file.size, {
           'Content-Type': file.mimetype,

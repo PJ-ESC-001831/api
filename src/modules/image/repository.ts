@@ -28,6 +28,10 @@ export async function createImage(
   const image = await db
     .insert(images)
     .values(imageData)
+    .onConflictDoUpdate({
+      target: images.uuid,
+      set: imageData,
+    })
     .returning({ id: images.id })
     .execute();
 
