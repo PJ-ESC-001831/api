@@ -13,3 +13,12 @@ export class FailedToCreateBucketError extends Error {
     this.name = 'FailedToCreateBucketError';
   }
 }
+
+export class FailedToGenerateSignedURLError extends Error {
+  constructor(
+    message = 'Failed to generate a signed URL for the bucket object.',
+  ) {
+    super(message);
+    this.name = 'FailedToGenerateSignedURLError';
+  }
+}

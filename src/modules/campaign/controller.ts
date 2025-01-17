@@ -4,7 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid'; // Import the UUID library
 
-import { getMinioClient } from '@modules/minio';
+import { getMinioClient, createBucket } from '@modules/minio';
 import { labeledLogger } from '@modules/logger';
 import {
   addImageToCampaign,
@@ -14,7 +14,6 @@ import {
 } from '.';
 import { FailedToAddImageToCampaignError, NewBucketError } from './errors';
 import { BucketsEnum } from '@src/constants/buckets';
-import { createBucket } from '@src/utils/minio';
 import { Client, S3Error } from 'minio';
 
 const logger = labeledLogger('module:campaign/controller');
