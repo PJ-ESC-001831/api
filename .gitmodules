@@ -1,6 +1,6 @@
 [submodule "src/database"]
 	path = src/database
 	url = git@co-maker.github.com:PJ-ESC-001831/database.git
-[submodule "src/modules/tradesafe"]
-	path = src/modules/tradesafe
+[submodule "src/lib/tradesafe"]
+	path = src/lib/tradesafe
 	url = git@co-maker.github.com:PJ-ESC-001831/tradesafe-sdk.git

@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 import DbConnection from '@database/client';
 import { adjustCostBase } from '@src/lib/utils/finance';
-import { Transaction, TransactionStateEnum } from './types';
+import { Transaction } from './types';
 import { createTransactionRecord } from './repository';
 import { labeledLogger } from '../logger';
 import { getCampaignById } from '../campaign';
@@ -13,7 +13,7 @@ const logger = labeledLogger('module:transaction');
 export async function createNewTransaction(
   transactionData: Pick<
     Transaction,
-    'amount' | 'campaignId' | 'buyerId' | 'transactionId'
+    'campaignId' | 'buyerId' | 'transactionId'
   >,
 ): Promise<Pick<Transaction, 'id' | 'reference'>> {
   const db = (await database).getDb();
@@ -25,7 +25,6 @@ export async function createNewTransaction(
       transactionData.campaignId,
       transactionData.transactionId,
     ),
-    state: TransactionStateEnum.PAID,
   } as Transaction);
 
   if (!response) {

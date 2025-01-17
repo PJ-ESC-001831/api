@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import multer, { File as MulterFile } from 'multer';
+import multer from 'multer';
 import path from 'path';
 import crypto from 'crypto';
 
@@ -28,11 +28,11 @@ const upload = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // Set a higher file size limit (e.g., 10MB)
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req, file, cb) => {
     if (file.mimetype === 'image/png') {
       cb(null, true); // Accept PNG files
     } else {
-      cb(new Error('Only PNG files are allowed'), false);
+      cb(null, false);
     }
   },
 });
@@ -191,7 +191,8 @@ export const postCampaignImages = async (
 
     // Validate and upload files to MinIO
     const uploadedFiles = await Promise.all(
-      files.map(async (file: MulterFile) => {
+      files.map(async (fileUpload: unknown) => {
+        const file = fileUpload as Express.Multer.File;
         const allowedExtensions = ['.jpg', '.jpeg', '.png']; // Add more if needed
         const fileExtension = path.extname(file.originalname).toLowerCase();
 

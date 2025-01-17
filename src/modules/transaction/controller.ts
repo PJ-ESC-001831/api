@@ -16,16 +16,15 @@ export async function createTransaction(
   next: NextFunction,
 ): Promise<Response | void> {
   try {
-    const { campaignId = null, buyerId = null, amount = null } = request.body;
+    const { campaignId = null, buyerId = null } = request.body;
 
     logger.info(
-      `Creating new transaction from buyerId: ${buyerId} with amount of ${amount} for campaignId: ${campaignId}.`,
+      `Creating new transaction from buyerId: ${buyerId} for campaignId: ${campaignId}.`,
     );
 
-    
+    const transactionId = 'test';
 
     const transaction = await createNewTransaction({
-      amount,
       campaignId,
       buyerId,
       transactionId,

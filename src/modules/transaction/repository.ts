@@ -17,7 +17,7 @@ export async function createTransactionRecord(
   }
 
   logger.info(
-    `Creating a new transaction for campaign ${transactionData.campaignId} for a amount of ${transactionData.amount}.`,
+    `Creating a new transaction for campaign ${transactionData.campaignId}.`,
   );
 
   const transaction = await db
