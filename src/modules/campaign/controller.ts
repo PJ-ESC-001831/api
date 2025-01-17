@@ -48,10 +48,21 @@ export const getCampaign = async (
   logger.info(`Retrieving campaign details for id: ${req.params.id}`);
 
   try {
+    const { include = null } = req.query;
     const result = await getCampaignById(parseInt(req.params.id, 10));
 
     if (result === null) {
       return res.status(404).json({ error: 'Campaign not found.' });
+    }
+
+    if (include && typeof include === 'string') {
+      const fieldsToInclude = new Set(
+        include.split(',').map((item) => item.trim()),
+      );
+
+      if (fieldsToInclude.has('images')) {
+        result.images = ['1', '2'];
+      }
     }
 
     return res.json({ data: result });
