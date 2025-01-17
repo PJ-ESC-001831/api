@@ -2,6 +2,8 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 import { users } from '@database/schema/users';
 import { buyers } from '@database/schema/buyers';
+import { sellers } from '@src/database/schema/sellers';
+
 import { User } from './types';
 import { DatabaseNotDefinedError } from './errors';
 
@@ -20,12 +22,11 @@ export async function createUser(
     throw new DatabaseNotDefinedError();
   }
 
-  return db?.insert(users).values(userData);
+  return db.insert(users).values(userData);
 }
 
 /**
  * Creates a new seller and corresponding user in the database.
- *
  * @param userData - An object containing user data.
  * @param db - The database connection instance.
  * @returns The created seller record or an error message.
@@ -39,29 +40,27 @@ export async function createSeller(
   }
 
   try {
-    // Insert the user and retrieve the generated ID
-    const [newUser] = await db
-      .insert(users)
-      .values(userData)
-      .returning({ id: users.id });
+    return await db.transaction(async (trx) => {
+      const [newUser] = await trx
+        .insert(users)
+        .values(userData)
+        .returning({ id: users.id });
 
-    // Insert the seller using the retrieved user ID
-    const [newSeller] = await db
-      .insert(sellers)
-      .values({ userId: newUser.id })
-      .returning({ id: sellers.id });
+      const [newSeller] = await trx
+        .insert(sellers)
+        .values({ userId: newUser.id })
+        .returning({ id: sellers.id });
 
-    // Return the created seller record
-    return newSeller;
+      return newSeller;
+    });
   } catch (error) {
-    console.error('Error creating seller:', error);
+    console.error('Error creating seller within transaction:', error);
     throw new Error('Failed to create seller');
   }
 }
 
 /**
  * Creates a new buyer and corresponding user in the database.
- *
  * @param userData - An object containing user data.
  * @param db - The database connection instance.
  * @returns The created buyer record or an error message.
@@ -75,23 +74,23 @@ export async function createBuyer(
   }
 
   try {
-    // Insert the user and retrieve the generated ID
-    const [newUser] = await db
-      .insert(users)
-      .values(userData)
-      .returning({ id: users.id });
+    return await db.transaction(async (trx) => {
+      const [newUser] = await trx
+        .insert(users)
+        .values(userData)
+        .returning({ id: users.id });
 
-    // Insert the buyer using the retrieved user ID
-    const [newBuyer] = await db
-      .insert(buyers)
-      .values({ userId: newUser.id })
-      .returning({ id: buyers.id });
+      const [newBuyer] = await trx
+        .insert(buyers)
+        .values({ userId: newUser.id })
+        .returning({ id: buyers.id });
 
-    // Return the created buyer record
-    return newBuyer;
+      return newBuyer;
+    });
   } catch (error) {
-    console.error('Error creating buyer:', error);
+    console.error('Error creating buyer within transaction:', error);
     throw new Error('Failed to create buyer');
   }
 }
+
 

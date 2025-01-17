@@ -1,7 +1,7 @@
 import { User } from './types';
 import DbConnection from '@database/client';
 import { labeledLogger } from '../logger';
-import { createSeller, createUser } from './repository';
+import { createBuyer, createSeller, createUser } from './repository';
 import { UserCreationError } from './errors';
 
 const logger = labeledLogger('module:user');
@@ -36,7 +36,7 @@ export const createSellerUser = async (userData: User): Promise<any> => {
 export const createBuyerUser = async (userData: User): Promise<any> => {
   try {
     const db = (await database).getDb();
-    const seller = await createSeller(userData, db);
+    const seller = await createBuyer(userData, db);
     return seller;
   } catch (error) {
     logger.error('Failed to create seller user: ', error);
