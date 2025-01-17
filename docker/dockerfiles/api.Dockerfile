@@ -43,7 +43,6 @@ RUN mkdir -p /etc/apt/keyrings && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-
 # Set the working directory
 SHELL ["/bin/bash", "-c"]
 WORKDIR /workspace

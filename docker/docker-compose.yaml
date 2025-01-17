@@ -12,6 +12,8 @@ services:
         - GID=${GID:-1000}
         - USERNAME=${USERNAME:-developer}
     restart: on-failure
+    extra_hosts:
+      - "co-maker.storage:192.168.1.12"
     tty: true
     depends_on:
       storage:

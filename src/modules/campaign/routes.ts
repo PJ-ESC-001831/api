@@ -13,7 +13,7 @@ import {
   campaignByIdRequestSchema,
   updateCampaignRequestSchema,
 } from './validation';
-import { ObjectsToValidate } from '@src/utils/validation/enums';
+import { ObjectsToValidate } from '@utils/validation/enums';
 
 const route = Router();
 

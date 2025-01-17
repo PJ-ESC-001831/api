@@ -1,4 +1,4 @@
-import { validateObject } from '@src/utils/validation';
+import { validateObject } from '@utils/validation';
 import { Router } from 'express';
 import { createUserRequestSchema } from './validation';
 import { createUser } from './controller';
