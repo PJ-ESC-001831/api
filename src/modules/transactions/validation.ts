@@ -18,32 +18,10 @@ export const createTransactionRequestSchema = z.object({
    */
   buyerId: z.number().positive(),
 
-
   /**
-   * This is the description that will show on the campaign page as a description.
+   * The amount that was transferred in the transaction. Only later in the future, but the reason this needs to be sent here, is in the case of multiple payments so that we can sum them all together.
    *
-   * @example "This is a description of my campaign."
+   * @example 12.00
    */
-  description: z.string().min(1),
-
-  /**
-   * This is the base cost of the campaign. It is optional so that you can set it later, and there
-   * might be cases of having a campaign where there is no cost.
-   *
-   * @example 100
-   */
-  costBase: z.number().positive().optional(),
-
-  /**
-   * This is the URL to the Tradesafe checkout page. It is optional so that you can set it later
-   * after the checkout was created.
-   */
-  checkoutLink: z.string().optional(),
-
-  /**
-   * This is the ID of the seller that created the campaign.
-   *
-   * @example 1
-   */
-  sellerId: z.number().int().positive(),
+  amount: z.number().positive(),
 });
