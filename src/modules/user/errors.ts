@@ -5,6 +5,13 @@ export class UserCreationError extends Error {
   }
 }
 
+export class UnknownUserTypeError extends Error {
+  constructor(message: string = 'Invalid user type received.') {
+    super(message);
+    this.name = 'UnknownUserTypeError';
+  }
+}
+
 export class DatabaseNotDefinedError extends Error {
   constructor(message: string = 'Database connection not defined.') {
     super(message);

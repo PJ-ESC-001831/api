@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { createSellerUser, createAdminUser } from '.';
+import { createUserRecord } from '.';
 
 /**
  * Creates a user based on the provided userType in the request body.
@@ -18,13 +18,7 @@ export const createUser = async (
 
   try {
     let user;
-    switch (userType) {
-      case 'seller':
-        user = await createSellerUser(userData);
-        break;
-      default:
-        user = await createAdminUser(userData);
-    }
+    user = await createUserRecord(userData, userType);
     res.status(200).json({
       data: user,
     });

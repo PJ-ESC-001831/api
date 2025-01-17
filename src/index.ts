@@ -38,7 +38,6 @@ if (!(env.NODE_ENV === 'development')) {
 
 const apiRoutes = Router();
 apiRoutes.use(express.json());
-apiRoutes.use(requestErrorHandler);
 apiRoutes.use(requestLogger);
 apiRoutes.use(cors({ origin: true }));
 apiRoutes.use(bodyParser.urlencoded({ extended: true }));
@@ -49,6 +48,7 @@ apiRoutes.use(protectedRoutes);
 const app = express();
 app.use('/api', apiRoutes);
 
+apiRoutes.use(requestErrorHandler);
 app.listen(port, () => {
   logger.info(`Server is running on port ${port}`);
 });
