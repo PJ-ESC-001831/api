@@ -43,6 +43,8 @@ RUN mkdir -p /etc/apt/keyrings && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+RUN echo "source /workspace/dev.rc" >> /home/$USERNAME/.bashrc
+
 # Set the working directory
 SHELL ["/bin/bash", "-c"]
 WORKDIR /workspace
