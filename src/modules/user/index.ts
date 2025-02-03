@@ -7,10 +7,12 @@ import { admins } from '@src/database/schema/admins';
 import { sellers } from '@src/database/schema/sellers';
 import { buyers } from '@src/database/schema/buyers';
 import { createToken } from '@src/lib/tradesafe/src/tokens';
+import GraphQLClient from '@src/lib/tradesafe/src/client';
 
 const logger = labeledLogger('module:user');
 
 const database = new DbConnection().configure();
+let tradesafeClient: GraphQLClient;
 
 /**
  * Creates a new user in the database.
@@ -24,7 +26,11 @@ export const createUserRecord = async (
   userType: string,
 ): Promise<any> => {
   try {
-    const token = createToken
+    tradesafeClient = await GraphQLClient.createAuthenticatedClient(
+      process.env.TRADESAFE_CLIENT_ID as string,
+      process.env.TRADESAFE_SECRET as string,
+    );
+
     const db = (await database).getDb();
     let user;
     if (userType === 'admin') user = await createUser(userData, admins, db);
