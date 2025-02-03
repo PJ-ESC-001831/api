@@ -5,7 +5,7 @@ import { buyers } from '@database/schema/buyers';
 import { admins } from '@database/schema/admins';
 import { sellers } from '@src/database/schema/sellers';
 
-import { User } from './types';
+import { UserWithToken } from './types';
 import { DatabaseNotDefinedError } from './errors';
 
 /**
@@ -16,7 +16,7 @@ import { DatabaseNotDefinedError } from './errors';
  * @return {Promise<IUser>} A promise that resolves to the created user.
  */
 export async function createUser(
-  userData: User,
+  userData: UserWithToken,
   schema: typeof admins | typeof buyers | typeof sellers,
   db: NodePgDatabase<Record<string, never>> | undefined,
 ): Promise<{ id: number }> {
