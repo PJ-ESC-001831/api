@@ -6,6 +6,7 @@ import { UnknownUserTypeError, UserCreationError } from './errors';
 import { admins } from '@src/database/schema/admins';
 import { sellers } from '@src/database/schema/sellers';
 import { buyers } from '@src/database/schema/buyers';
+import { createToken } from '@src/lib/tradesafe/src/tokens';
 
 const logger = labeledLogger('module:user');
 
@@ -23,6 +24,7 @@ export const createUserRecord = async (
   userType: string,
 ): Promise<any> => {
   try {
+    const token = createToken
     const db = (await database).getDb();
     let user;
     if (userType === 'admin') user = await createUser(userData, admins, db);
