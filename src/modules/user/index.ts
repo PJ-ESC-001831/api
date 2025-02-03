@@ -6,7 +6,6 @@ import { UnknownUserTypeError, UserCreationError } from './errors';
 import { admins } from '@src/database/schema/admins';
 import { sellers } from '@src/database/schema/sellers';
 import { buyers } from '@src/database/schema/buyers';
-import { createToken } from '@src/lib/tradesafe/src/tokens';
 import GraphQLClient from '@src/lib/tradesafe/src/client';
 
 const logger = labeledLogger('module:user');
