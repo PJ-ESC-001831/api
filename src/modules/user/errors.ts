@@ -28,6 +28,15 @@ export class UserQueryError extends Error {
   }
 }
 
+export class TokenNotAttachedError extends Error {
+  constructor(
+    message: string = 'The token could not be attached to the user.',
+  ) {
+    super(message);
+    this.name = 'TokenNotAttachedError';
+  }
+}
+
 export class UserUpdateError extends Error {
   constructor(
     message: string = 'Something went wrong with an update to the users table.',

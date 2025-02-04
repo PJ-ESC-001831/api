@@ -1,8 +1,12 @@
-import { User, UserWithToken } from './types';
+import { User } from './types';
 import DbConnection from '@database/client';
 import { labeledLogger } from '../logger';
 import { createUser, updateUserToken } from './repository';
-import { UnknownUserTypeError, UserCreationError } from './errors';
+import {
+  TokenNotAttachedError,
+  UnknownUserTypeError,
+  UserCreationError,
+} from './errors';
 import { admins } from '@src/database/schema/admins';
 import { sellers } from '@src/database/schema/sellers';
 import { buyers } from '@src/database/schema/buyers';
@@ -32,11 +36,6 @@ export const createUserRecord = async (
       return createUser(userData, admins, db);
     }
 
-    // const userWithToken: UserWithToken = {
-    //   ...userData,
-    //   tokenId: await createTokenForUser(userData),
-    // };
-
     let schema: typeof sellers | typeof buyers | undefined = undefined;
     if (userType === 'seller') schema = sellers;
     else if (userType === 'buyer') schema = buyers;
@@ -49,10 +48,19 @@ export const createUserRecord = async (
     ]);
 
     // Check whether the token was created.
-    if (!toke)
-      const updatedUser = await updateUserToken(schema, user.id, tokenId, db);
+    if (!tokenId) throw new TokenNotAttachedError();
 
-    return user;
+    const updatedUser = await updateUserToken(
+      schema,
+      user.id,
+      tokenId as string,
+      db,
+    );
+
+    return {
+      ...user,
+      ...updatedUser,
+    };
   } catch (error) {
     logger.error('Failed to create seller user: ', error);
     throw new UserCreationError('Could not create user.');
