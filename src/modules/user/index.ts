@@ -62,7 +62,6 @@ export const createTokenForUser = async (userData: User) => {
     );
 
     const token = await createToken(tradesafeClient, {
-      name: userData?.emailAddress,
       user: {
         givenName: userData?.firstName,
         familyName: userData?.lastName,
