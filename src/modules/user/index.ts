@@ -1,7 +1,7 @@
 import { User, UserWithToken } from './types';
 import DbConnection from '@database/client';
 import { labeledLogger } from '../logger';
-import { createUser } from './repository';
+import { createUser, updateUserToken } from './repository';
 import { UnknownUserTypeError, UserCreationError } from './errors';
 import { admins } from '@src/database/schema/admins';
 import { sellers } from '@src/database/schema/sellers';
@@ -27,25 +27,30 @@ export const createUserRecord = async (
 ): Promise<any> => {
   try {
     const db = (await database).getDb();
-    let user;
 
     if (userType === 'admin') {
-      user = await createUser(userData, admins, db);
-      if (!user) throw new UnknownUserTypeError();
-      return user;
+      return createUser(userData, admins, db);
     }
 
-    const userWithToken: UserWithToken = {
-      ...userData,
-      tokenId: await createTokenForUser(userData),
-    };
+    // const userWithToken: UserWithToken = {
+    //   ...userData,
+    //   tokenId: await createTokenForUser(userData),
+    // };
 
-    if (userType === 'seller')
-      user = await createUser(userWithToken, sellers, db);
-    else if (userType === 'buyer')
-      user = await createUser(userWithToken, buyers, db);
+    let schema: typeof sellers | typeof buyers | undefined = undefined;
+    if (userType === 'seller') schema = sellers;
+    else if (userType === 'buyer') schema = buyers;
 
-    if (!user) throw new UnknownUserTypeError();
+    if (!schema) throw new UnknownUserTypeError();
+
+    const [user, tokenId] = await Promise.all([
+      createUser(userData, sellers, db),
+      createTokenForUser(userData),
+    ]);
+
+    // Check whether the token was created.
+    if (!toke)
+      const updatedUser = await updateUserToken(schema, user.id, tokenId, db);
 
     return user;
   } catch (error) {
