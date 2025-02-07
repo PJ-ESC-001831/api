@@ -24,7 +24,7 @@
       "@modules/*": ["src/modules/*"],
       "@database/*": ["src/database/*"],
       "@utils/*": ["src/lib/utils/*"],
-      "@errors/*": ["src/lib/errors/*"],
+      "@errors/*": ["src/lib/errors/*"]
     }
   },
   "include": ["src/**/*"],

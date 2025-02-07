@@ -26,3 +26,4 @@ export const createUser = async (
     next(error);
   }
 };
+

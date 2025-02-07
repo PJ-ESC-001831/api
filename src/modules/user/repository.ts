@@ -86,6 +86,23 @@ export async function getUserByEmail(
   }
 }
 
+export async function updateUser(
+  userId: number,
+  userData: User,
+  db: NodePgDatabase<Record<string, never>> | undefined,
+): Promise<{ id: number } | null> {
+  if (!db) {
+    throw new DatabaseNotDefinedError();
+  }
+
+  try {
+    
+  } catch (error) {
+    logger.error(`Error when updating a user (${userId}):`, error);
+    throw new UserUpdateError(`Something went wrong whilst updating a user.`);
+  }
+}
+
 export async function updateUserToken(
   schema: typeof buyers | typeof sellers,
   userId: number,
@@ -109,7 +126,7 @@ export async function updateUserToken(
 
     return updatedUser || null;
   } catch (error) {
-    logger.error(`Error when updating a user ${userId}:`, error);
+    logger.error(`Error when updating a user (${userId}):`, error);
     throw new UserUpdateError(`Something went wrong whilst updating a user.`);
   }
 }
