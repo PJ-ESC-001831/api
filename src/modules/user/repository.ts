@@ -5,11 +5,12 @@ import { buyers } from '@database/schema/buyers';
 import { admins } from '@database/schema/admins';
 import { sellers } from '@src/database/schema/sellers';
 
-import { UserWithToken } from './types';
+import { User, UserWithToken } from './types';
 import {
   DatabaseNotDefinedError,
   DuplicateEmailAddressError,
   UserCreationError,
+  UserQueryError,
   UserUpdateError,
 } from './errors';
 import logger from '../logger';
@@ -60,6 +61,77 @@ export async function createUser(
   }
 }
 
+export async function getSeller(
+  id: number,
+  db: NodePgDatabase<Record<string, never>> | undefined,
+): Promise<Partial<User> | null> {
+  if (!db) {
+    throw new DatabaseNotDefinedError();
+  }
+
+  try {
+    const [seller] = await db
+      .select()
+      .from(sellers)
+      .leftJoin(users, eq(sellers.userId, users.id))
+      .where(eq(sellers.id, id));
+
+    return seller as Partial<User>;
+  } catch (error) {
+    if (!(error instanceof Error)) throw new UserQueryError();
+
+    logger.error(error);
+
+    throw new UserQueryError(error.message);
+  }
+}
+
+export async function getBuyer(
+  id: number,
+  db: NodePgDatabase<Record<string, never>> | undefined,
+): Promise<Partial<User> | null> {
+  if (!db) {
+    throw new DatabaseNotDefinedError();
+  }
+
+  try {
+    const [buyer] = await db
+      .select()
+      .from(buyers)
+      .leftJoin(users, eq(buyers.userId, users.id))
+      .where(eq(buyers.id, id));
+
+    return buyer as Partial<User>;
+  } catch (error) {
+    if (!(error instanceof Error)) throw new UserQueryError();
+
+    logger.error(error);
+
+    throw new UserQueryError(error.message);
+  }
+}
+
+export async function getUser(
+  id: number,
+  db: NodePgDatabase<Record<string, never>> | undefined,
+): Promise<(Partial<User> & { token?: string }) | null> {
+  if (!db) {
+    throw new DatabaseNotDefinedError();
+  }
+
+  try {
+    const user = db.select().from(users).where(eq(users.id, id));
+
+    return user as Partial<User>;
+  } catch (error) {
+    if (!(error instanceof Error)) throw new UserQueryError();
+
+    logger.error(error);
+
+    throw new UserQueryError(error.message);
+  }
+}
+
 /**
  * Assigns a new TradeSafe Token to either a buyer or seller record.
  * @param schema
@@ -80,7 +152,7 @@ export async function updateUserToken(
 
   try {
     // Example: selecting the fields from users plus token IDs from buyers and sellers
-    const updates = await db
+    const [updatedUser] = await db
       .update(schema)
       .set({ tokenId })
       .where(eq(schema.id, id))
@@ -89,15 +161,15 @@ export async function updateUserToken(
         tokenId: schema.tokenId,
       });
 
-    if (updates.length === 0) {
+    if (!updatedUser) {
       throw new UserUpdateError(
         'The token could not be assigned to an existing user.',
       );
     }
 
-    return updates[0] || null;
+    return updatedUser || null;
   } catch (error) {
-    logger.error(`Error when updating a user (${userId}):`, error);
+    logger.error(`Error when updating a user (${id}):`, error);
     throw new UserUpdateError(`Something went wrong whilst updating a user.`);
   }
 }

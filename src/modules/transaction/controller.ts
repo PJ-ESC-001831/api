@@ -22,12 +22,9 @@ export async function createTransaction(
       `Creating new transaction from buyerId: ${buyerId} for campaignId: ${campaignId}.`,
     );
 
-    const transactionId = 'test';
-
     const transaction = await createNewTransaction({
       campaignId,
       buyerId,
-      transactionId,
     });
 
     return response.status(200).json({ data: transaction });

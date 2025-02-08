@@ -2,10 +2,12 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { Campaign } from './types';
 import { campaigns } from '@src/database/schema/campaigns';
+import { sellers } from '@src/database/schema/sellers';
+import { users } from '@src/database/schema/users';
 
 /**
  * Creates a new campaign in the database.
- * 
+ *
  * @param {NodePgDatabase<Record<string, never>> | undefined} db The Mongoose connection to use.
  * @param {Campaign} campaignData The new campaign details.
  * @return {Promise<Promise<{ id: number; }[]> | undefined>} A promise that resolves to the created campaign.
@@ -27,7 +29,7 @@ export async function createCampaign(
 
 /**
  * Finds a campaign by its ID.
- * 
+ *
  * @param {NodePgDatabase<Record<string, never>> | undefined} db The Mongoose connection to use.
  * @param {string} id The ID of the campaign to search for.
  * @return {Promise<any>} A promise that resolves to the found campaign or null if not found.
@@ -44,6 +46,24 @@ export async function findCampaignById(
     .select()
     .from(campaigns)
     .where(eq(campaigns.id, parseInt(id, 10)));
+}
+
+export async function getCampaignWithSeller(
+  id: number,
+  db: NodePgDatabase<Record<string, never>> | undefined,
+): Promise<any | undefined> {
+  if (!db) {
+    return Promise.resolve();
+  }
+
+  const [response] = await db
+    .select()
+    .from(campaigns)
+    .leftJoin(sellers, eq(campaigns.sellerId, sellers.id))
+    .leftJoin(users, eq(sellers.userId, users.id))
+    .where(eq(campaigns.id, id));
+
+  return response;
 }
 
 /**

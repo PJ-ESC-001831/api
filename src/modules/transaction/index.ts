@@ -6,25 +6,26 @@ import { Transaction } from './types';
 import { createTransactionRecord } from './repository';
 import { labeledLogger } from '../logger';
 import { getCampaignByPublicId } from '../campaign';
+import { getBuyer } from '../user/repository';
+import { getCampaignWithSeller } from '../campaign/repository';
 
 const database = new DbConnection().configure();
 const logger = labeledLogger('module:transaction');
 
 export async function createNewTransaction(
-  transactionData: Pick<
-    Transaction,
-    'campaignId' | 'buyerId' | 'transactionId'
-  >,
+  transactionData: Pick<Transaction, 'campaignId' | 'buyerId'>,
 ): Promise<Pick<Transaction, 'id' | 'reference'>> {
   const db = (await database).getDb();
+
+  const [buyerData, campaignData] = await Promise.all([
+    getBuyer(transactionData.buyerId, db),
+    getCampaignWithSeller(transactionData.campaignId, db),
+  ]);
 
   const costAdjustedTransaction = adjustCostBase(transactionData);
   const response = await createTransactionRecord(db, {
     ...costAdjustedTransaction,
-    reference: await generateReference(
-      transactionData.campaignId,
-      transactionData.transactionId,
-    ),
+    reference: await generateReference(transactionData.campaignId, 'test'),
   } as Transaction);
 
   if (!response) {
