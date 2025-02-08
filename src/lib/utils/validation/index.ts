@@ -3,7 +3,7 @@ import { ZodError, ZodSchema } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 import { ObjectsToValidate } from './enums';
 
-const logger = labeledLogger('module:utils/validation');
+const logger = labeledLogger('utils:validation');
 
 /**
  * Middleware to validate the request body against the provided schema.

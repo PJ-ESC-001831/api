@@ -12,6 +12,7 @@ import { sellers } from '@src/database/schema/sellers';
 import { buyers } from '@src/database/schema/buyers';
 import GraphQLClient from '@src/lib/tradesafe/src/client';
 import { createToken } from '@src/lib/tradesafe/src/tokens';
+import { generatePublicId } from '@src/lib/utils/string';
 
 const logger = labeledLogger('module:user');
 
@@ -31,6 +32,8 @@ export const createUserRecord = async (
 ): Promise<any> => {
   try {
     const db = (await database).getDb();
+
+    userData.publicId = generatePublicId();
 
     if (userType === 'admin') {
       return createUser(userData, admins, db);

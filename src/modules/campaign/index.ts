@@ -13,6 +13,7 @@ import * as campaignRepository from './repository';
 import { adjustCostBase } from '@utils/finance';
 import { Image } from '../image/types';
 import { createImage } from '../image/repository';
+import { generatePublicId } from '@src/lib/utils/string';
 
 const logger = labeledLogger('module:campaign');
 const database = new DbConnection().configure();
@@ -29,6 +30,8 @@ export async function createCampaign(campaignData: Campaign): Promise<any> {
     const db = (await database).getDb();
 
     const adjustedCampaignData = adjustCostBase(campaignData);
+
+    adjustedCampaignData.publicId = generatePublicId();
 
     // Insert the campaign and return the newly created campaign ID
     const response = await campaignRepository.createCampaign(

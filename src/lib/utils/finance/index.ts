@@ -1,3 +1,7 @@
+import { labeledLogger } from '@src/modules/logger';
+
+const logger = labeledLogger('utils:finance');
+
 /**
  * Multiplies the costBase value by 100 if it exists in the object.
  *
@@ -20,6 +24,10 @@ export function adjustCostBase(
     } else {
       revisedObj.costBase *= 100;
     }
+
+    logger.info(
+      `Adjusted costBase from ${obj.costBase} to ${revisedObj.costBase}.`,
+    );
   }
 
   // Return the revised object
