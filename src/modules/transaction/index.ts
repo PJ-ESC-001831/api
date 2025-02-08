@@ -5,7 +5,7 @@ import { adjustCostBase } from '@src/lib/utils/finance';
 import { Transaction } from './types';
 import { createTransactionRecord } from './repository';
 import { labeledLogger } from '../logger';
-import { getCampaignById } from '../campaign';
+import { getCampaignByPublicId } from '../campaign';
 
 const database = new DbConnection().configure();
 const logger = labeledLogger('module:transaction');
@@ -39,7 +39,7 @@ export async function generateReference(
   campaignId: number,
   transactionId: string,
 ): Promise<string> {
-  const campaign = await getCampaignById(campaignId);
+  const campaign = await getCampaignByPublicId(campaignId);
 
   const hash = crypto
     .createHash('sha256')

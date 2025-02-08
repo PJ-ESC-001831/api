@@ -12,7 +12,7 @@ import { labeledLogger } from '@modules/logger';
 import {
   addImageToCampaign,
   createCampaign as createNewCampaign,
-  getCampaignById,
+  getCampaignByPublicId,
   updateCampaign,
 } from '.';
 import { FailedToAddImageToCampaignError, NewBucketError } from './errors';
@@ -53,9 +53,9 @@ export const getCampaign = async (
 
   try {
     const { include = null } = req.query;
-    const result = await getCampaignById(req.params.publicId);
+    const campaign = await getCampaignByPublicId(req.params.publicId);
 
-    if (result === null) {
+    if (campaign === null) {
       return res.status(404).json({ error: 'Campaign not found.' });
     }
 
@@ -67,11 +67,9 @@ export const getCampaign = async (
       // Retrieves a list of image URLs to display in public.
       if (fieldsToInclude.has('images')) {
         const minioClient = await getMinioClient();
-        const imageList = await fetchImagesForCampaign(
-          parseInt(req.params.id, 10),
-        );
+        const imageList = await fetchImagesForCampaign(campaign.id);
 
-        result.images = await Promise.all(
+        campaign.images = await Promise.all(
           imageList.map(async ({ bucket, key }) => {
             return getPublicSharedObjectURL(bucket, key, minioClient);
           }),
@@ -79,7 +77,7 @@ export const getCampaign = async (
       }
     }
 
-    return res.json({ data: result });
+    return res.json({ data: campaign });
   } catch (error) {
     logger.error(`Failed to retrieve campaign details: ${error}`);
     next(error);

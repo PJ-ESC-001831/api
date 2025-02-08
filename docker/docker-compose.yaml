@@ -49,8 +49,7 @@ services:
       pj-esc-001831-api-network:
         ipv4_address: 192.168.1.11
     volumes:
-      - .docker/postgres/data:/var/lib/postgresql/data
-      - .docker/postgres/certs:/var/lib/postgresql/certs
+      - database-data:/var/lib/postgresql
 
   storage:
     image: minio/minio
@@ -68,7 +67,7 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
-      - .docker/minio:/data
+      - storage-data:/data
     restart: unless-stopped
     networks:
       pj-esc-001831-api-network:
@@ -80,3 +79,7 @@ networks:
     ipam:
       config:
         - subnet: 192.168.1.0/24
+
+volumes:
+  database-data:
+  storage-data:

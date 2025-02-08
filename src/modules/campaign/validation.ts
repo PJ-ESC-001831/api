@@ -41,7 +41,19 @@ export const createCampaignRequestSchema = z.object({
 });
 
 /**
- * Schema for validating the request to get a campaign by ID.
+ * Schema for validating the request to get a campaign by publicId.
+ */
+export const campaignByPublicIdRequestSchema = z.object({
+  /**
+   * The ID of the campaign to retrieve.
+   *
+   * @example 1
+   */
+  publicId: z.string(),
+});
+
+/**
+ * Schema for validating the request to get a campaign by publicId.
  */
 export const campaignByIdRequestSchema = z.object({
   /**
@@ -49,7 +61,7 @@ export const campaignByIdRequestSchema = z.object({
    *
    * @example 1
    */
-  publicId: z.string(),
+  id: z.string(),
 });
 
 /**

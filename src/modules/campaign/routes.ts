@@ -10,8 +10,9 @@ import {
 import { validateObject } from '@utils/validation';
 import {
   createCampaignRequestSchema,
-  campaignByIdRequestSchema,
+  campaignByPublicIdRequestSchema,
   updateCampaignRequestSchema,
+  campaignByIdRequestSchema,
 } from './validation';
 import { ObjectsToValidate } from '@utils/validation/enums';
 
@@ -23,18 +24,14 @@ const route = Router();
  */
 route.get(
   '/:publicId',
-  validateObject(campaignByIdRequestSchema, ObjectsToValidate.PARAMS),
+  validateObject(campaignByPublicIdRequestSchema, ObjectsToValidate.PARAMS),
   getCampaign,
 );
 
 /**
  * Route for attaching images to a campaign.
  */
-route.post(
-  '/:id/images',
-  uploadMiddleware,
-  postCampaignImages,
-);
+route.post('/:id/images', uploadMiddleware, postCampaignImages);
 
 /**
  * Route for creating a new campaign.

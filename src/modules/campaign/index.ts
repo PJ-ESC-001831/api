@@ -57,7 +57,7 @@ export async function createCampaign(campaignData: Campaign): Promise<any> {
  * @param {string} publicId The publicId of the campaign to retrieve.
  * @return {Promise<any>} The campaign data.
  */
-export async function getCampaignById(publicId: string): Promise<any> {
+export async function getCampaignByPublicId(publicId: string): Promise<any> {
   logger.info(`Retrieving campaign with publicId ${publicId}.`);
 
   try {
@@ -107,7 +107,7 @@ export async function updateCampaign(
     const updatedCampaign = await campaignRepository.updateCampaign(
       db,
       campaignId,
-      adjustedUpdates as Campaign,
+      adjustedUpdates as Partial<Campaign>,
     );
 
     if (!updatedCampaign || updateCampaign.length < 1) {
