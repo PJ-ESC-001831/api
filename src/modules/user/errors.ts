@@ -12,6 +12,15 @@ export class UnknownUserTypeError extends Error {
   }
 }
 
+export class DuplicateEmailAddressError extends Error {
+  constructor(
+    message: string = 'The given email address already exists in the database.',
+  ) {
+    super(message);
+    this.name = 'DuplicateEmailAddressError';
+  }
+}
+
 export class DatabaseNotDefinedError extends Error {
   constructor(message: string = 'Database connection not defined.') {
     super(message);

@@ -45,10 +45,12 @@ export const createUserRecord = async (
 
     if (!schema) throw new UnknownUserTypeError();
 
-    const [user, tokenId] = await Promise.all([
-      createUser(userData, sellers, db),
-      createTokenForUser(userData),
-    ]);
+    /*
+     * Can't do these in parallel because we need createUser to stop the createTokenForUser
+     * function if it detects a duplicate emailAddress.
+     */
+    const user = await createUser(userData, schema, db);
+    const tokenId = await createTokenForUser(userData);
 
     // Check whether the token was created.
     if (!tokenId) throw new TokenNotAttachedError();
@@ -65,7 +67,6 @@ export const createUserRecord = async (
       ...updatedUser,
     };
   } catch (error) {
-    logger.error('Failed to create seller user: ', error);
     throw new UserCreationError('Could not create user.');
   }
 };

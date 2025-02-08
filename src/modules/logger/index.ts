@@ -38,7 +38,18 @@ const defaultLogger = (location: string | null = null) =>
     level: 'debug', // Default log level
     format: combine(
       label({ label: location ?? 'default' }),
-      timestamp({ format: 'HH:mm:ss' }),
+      timestamp({
+        format: () =>
+          new Intl.DateTimeFormat('en-GB', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+          }).format(new Date()),
+      }),
       customFormat,
     ),
     transports: [
