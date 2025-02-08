@@ -53,12 +53,12 @@ export async function createCampaign(campaignData: Campaign): Promise<any> {
 }
 
 /**
- * Retrieves a campaign by its ID.
- * @param {number} id The ID of the campaign to retrieve.
+ * Retrieves a campaign by its publicId.
+ * @param {string} publicId The publicId of the campaign to retrieve.
  * @return {Promise<any>} The campaign data.
  */
-export async function getCampaignById(id: number): Promise<any> {
-  logger.info(`Retrieving campaign with id ${id}.`);
+export async function getCampaignById(publicId: string): Promise<any> {
+  logger.info(`Retrieving campaign with publicId ${publicId}.`);
 
   try {
     const db = (await database).getDb();
@@ -67,13 +67,13 @@ export async function getCampaignById(id: number): Promise<any> {
     const entry = await db
       ?.select()
       .from(campaigns)
-      .where(eq(campaigns.id, id))
+      .where(eq(campaigns.publicId, publicId))
       .limit(1)
       .execute();
 
     // Check if entry is undefined or empty
     if (!entry || entry.length === 0) {
-      logger.warn(`Campaign with id ${id} not found.`);
+      logger.warn(`Campaign with publicId ${publicId} not found.`);
       return null;
     }
 
@@ -82,7 +82,7 @@ export async function getCampaignById(id: number): Promise<any> {
     return adjustedEntry; // Return the first campaign object
   } catch (error) {
     logger.error(
-      `Error retrieving campaign with id ${id}: ${(error as Error).message}`,
+      `Error retrieving campaign with publicId ${publicId}: ${(error as Error).message}`,
     );
     throw new CampaignNotFoundError();
   }

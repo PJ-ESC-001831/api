@@ -49,7 +49,7 @@ export const campaignByIdRequestSchema = z.object({
    *
    * @example 1
    */
-  id: z.string(),
+  publicId: z.string(),
 });
 
 /**

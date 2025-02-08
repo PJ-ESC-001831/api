@@ -49,11 +49,11 @@ export const getCampaign = async (
   res: Response,
   next: NextFunction,
 ): Promise<Response | void> => {
-  logger.info(`Retrieving campaign details for id: ${req.params.id}`);
+  logger.info(`Retrieving campaign details for id: ${req.params.publicId}`);
 
   try {
     const { include = null } = req.query;
-    const result = await getCampaignById(parseInt(req.params.id, 10));
+    const result = await getCampaignById(req.params.publicId);
 
     if (result === null) {
       return res.status(404).json({ error: 'Campaign not found.' });

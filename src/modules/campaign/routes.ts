@@ -22,7 +22,7 @@ const route = Router();
  * The ID is passed as a URL parameter.
  */
 route.get(
-  '/:id',
+  '/:publicId',
   validateObject(campaignByIdRequestSchema, ObjectsToValidate.PARAMS),
   getCampaign,
 );
