@@ -10,7 +10,7 @@ const logger = labeledLogger('utils:finance');
  * @return {Record<string, any>} The revised object with costBase adjusted if present.
  */
 export function adjustCostBase(
-  obj: Record<string, any>,
+  obj: any & { costBase?: number },
   reverse = false,
 ): Record<string, any> {
   // Create a shallow copy of the object to avoid mutating the original

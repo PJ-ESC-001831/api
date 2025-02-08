@@ -22,7 +22,7 @@ export async function createNewTransaction(
     getCampaignWithSeller(transactionData.campaignId, db),
   ]);
 
-  const costAdjustedTransaction = adjustCostBase(transactionData);
+  const costAdjustedCampaign = adjustCostBase(campaignData?.campaigns, true);
   const response = await createTransactionRecord(db, {
     ...costAdjustedTransaction,
     reference: await generateReference(transactionData.campaignId, 'test'),

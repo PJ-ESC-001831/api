@@ -5,7 +5,7 @@ import { buyers } from '@database/schema/buyers';
 import { admins } from '@database/schema/admins';
 import { sellers } from '@src/database/schema/sellers';
 
-import { User, UserWithToken } from './types';
+import { Buyer, Seller, User, UserWithToken } from './types';
 import {
   DatabaseNotDefinedError,
   DuplicateEmailAddressError,
@@ -64,7 +64,7 @@ export async function createUser(
 export async function getSeller(
   id: number,
   db: NodePgDatabase<Record<string, never>> | undefined,
-): Promise<Partial<User> | null> {
+): Promise<{ users: User; sellers: Seller } | null> {
   if (!db) {
     throw new DatabaseNotDefinedError();
   }
@@ -76,7 +76,7 @@ export async function getSeller(
       .leftJoin(users, eq(sellers.userId, users.id))
       .where(eq(sellers.id, id));
 
-    return seller as Partial<User>;
+    return seller as { users: User; sellers: Seller } | null;
   } catch (error) {
     if (!(error instanceof Error)) throw new UserQueryError();
 
@@ -89,7 +89,7 @@ export async function getSeller(
 export async function getBuyer(
   id: number,
   db: NodePgDatabase<Record<string, never>> | undefined,
-): Promise<Partial<User> | null> {
+): Promise<{ users: User; buyers: Buyer } | null> {
   if (!db) {
     throw new DatabaseNotDefinedError();
   }
@@ -101,7 +101,7 @@ export async function getBuyer(
       .leftJoin(users, eq(buyers.userId, users.id))
       .where(eq(buyers.id, id));
 
-    return buyer as Partial<User>;
+    return buyer as { users: User; buyers: Buyer } | null;
   } catch (error) {
     if (!(error instanceof Error)) throw new UserQueryError();
 
@@ -114,7 +114,7 @@ export async function getBuyer(
 export async function getUser(
   id: number,
   db: NodePgDatabase<Record<string, never>> | undefined,
-): Promise<(Partial<User> & { token?: string }) | null> {
+): Promise<Partial<User> | null> {
   if (!db) {
     throw new DatabaseNotDefinedError();
   }

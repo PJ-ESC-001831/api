@@ -1,9 +1,11 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
-import { Campaign } from './types';
+import { Campaign, CampaignWithSeller } from './types';
 import { campaigns } from '@src/database/schema/campaigns';
 import { sellers } from '@src/database/schema/sellers';
 import { users } from '@src/database/schema/users';
+import { Seller } from '../user/types';
+import { User } from '@clerk/clerk-sdk-node';
 
 /**
  * Creates a new campaign in the database.
@@ -51,9 +53,13 @@ export async function findCampaignById(
 export async function getCampaignWithSeller(
   id: number,
   db: NodePgDatabase<Record<string, never>> | undefined,
-): Promise<any | undefined> {
+): Promise<{
+  campaigns: Campaign;
+  sellers?: Seller;
+  users?: User;
+} | null> {
   if (!db) {
-    return Promise.resolve();
+    return null;
   }
 
   const [response] = await db
@@ -63,7 +69,7 @@ export async function getCampaignWithSeller(
     .leftJoin(users, eq(sellers.userId, users.id))
     .where(eq(campaigns.id, id));
 
-  return response;
+  return response as unknown as CampaignWithSeller;
 }
 
 /**
