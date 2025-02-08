@@ -89,6 +89,42 @@ export async function getCampaignByPublicId(publicId: string): Promise<any> {
 }
 
 /**
+ * Retrieves a campaign by its id.
+ * @param {string} publicId The id of the campaign to retrieve.
+ * @return {Promise<any>} The campaign data.
+ */
+export async function getCampaignById(id: number): Promise<Campaign|null> {
+  logger.info(`Retrieving campaign with id ${id}.`);
+
+  try {
+    const db = (await database).getDb();
+
+    // Perform the query and limit the results to one
+    const entry = await db
+      ?.select()
+      .from(campaigns)
+      .where(eq(campaigns.id, id))
+      .limit(1)
+      .execute();
+
+    // Check if entry is undefined or empty
+    if (!entry || entry.length === 0) {
+      logger.warn(`Campaign with id ${id} not found.`);
+      return null;
+    }
+
+    const adjustedEntry = adjustCostBase(entry[0], true);
+
+    return adjustedEntry as Campaign; // Return the first campaign object
+  } catch (error) {
+    logger.error(
+      `Error retrieving campaign with id ${id}: ${(error as Error).message}`,
+    );
+    throw new CampaignNotFoundError();
+  }
+}
+
+/**
  * Updates a campaign in the database.
  * @param {string} campaignId The ID of the campaign to update.
  * @param {Partial<Campaign>} updates The fields to update.
