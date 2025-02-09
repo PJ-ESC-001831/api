@@ -67,6 +67,7 @@ export const createUserRecord = async (
       ...updatedUser,
     };
   } catch (error) {
+    logger.error(error);
     throw new UserCreationError('Could not create user.');
   }
 };

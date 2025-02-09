@@ -5,12 +5,13 @@ import { adjustCostBase } from '@src/lib/utils/finance';
 import { Transaction } from './types';
 import { createTransactionRecord } from './repository';
 import { labeledLogger } from '../logger';
-import { getCampaignById, getCampaignByPublicId } from '../campaign';
 import { getBuyer } from '../user/repository';
 import { getCampaignWithSeller } from '../campaign/repository';
 import { CampaignNotFoundError } from '../campaign/errors';
 import { createTransaction } from '@src/lib/tradesafe/src/transactions';
 import GraphQLClient from '@src/lib/tradesafe/src/client';
+import { FailedToCreateTransactionError } from './errors';
+import { generatePublicId } from '@src/lib/utils/string';
 
 const database = new DbConnection().configure();
 const logger = labeledLogger('module:transaction');
@@ -25,13 +26,13 @@ export async function createNewTransaction(
   allocationTitle = 'General Sales Allocation',
 ): Promise<Pick<Transaction, 'id' | 'reference'>> {
   const db = (await database).getDb();
+  await client.authenticate();
 
   const [buyerData, campaignData] = await Promise.all([
     getBuyer(transactionData.buyerId, db),
     getCampaignWithSeller(transactionData.campaignId, db),
   ]);
 
-  const costAdjustedCampaign = adjustCostBase(campaignData?.campaigns, true);
   const tradesafeTransaction = await createTransaction(client, {
     title: campaignData?.campaigns.title as string,
     description: campaignData?.campaigns.description as string,
@@ -42,9 +43,17 @@ export async function createNewTransaction(
       {
         title: allocationTitle,
         description: `General allocation.`,
-        value: campaignData?.campaigns.costBase as number,
+        value: adjustCostBase(campaignData?.campaigns, true).costBase as number,
 
-        // TODO 2025-02-08: We will have to change how this is done.
+        /*
+         * TODO 2025-02-08: We will have to change how this is done.
+         *
+         * I think we should have a JSON object in the campaign determines this. If there is a
+         * deliver-by-date we put the difference between that and now here. If there is a lower
+         * limit to the amount of orders that we need before we can deliver, then we keep
+         * adjusting this for all of the allocations on all of the transactions that are related
+         * to a campaign.
+         */
         daysToDeliver: 7,
         daysToInspect: 7,
       },
@@ -61,12 +70,17 @@ export async function createNewTransaction(
     ],
   });
 
+  if (!tradesafeTransaction)
+    throw new FailedToCreateTransactionError(
+      'Nothing received from the TradeSafe API when creating a transaction.',
+    );
+
   const response = await createTransactionRecord(db, {
-    ...{
-      campaignId: transactionData.campaignId,
-      transactionId: tradesafeTransaction?.id,
-    },
-    reference: await generateReference(transactionData.campaignId, 'test'),
+    campaignId: transactionData.campaignId,
+    transactionId: tradesafeTransaction?.id,
+    buyerId: buyerData?.buyers.id,
+    balance: 0, // User has not paid anything yet, will update later.
+    reference: generatePublicId(),
   } as Transaction);
 
   if (!response) {
@@ -75,23 +89,4 @@ export async function createNewTransaction(
   }
 
   return response;
-}
-
-export async function generateReference(
-  campaignId: number,
-  transactionId: string,
-): Promise<string> {
-  const campaign = await getCampaignById(campaignId);
-
-  if (!campaign)
-    throw new CampaignNotFoundError(
-      `Unable to find campaign with id: ${campaignId} whilst generating a reference for a transaction.`,
-    );
-
-  const hash = crypto
-    .createHash('sha256')
-    .update(`${campaign.publicId}${transactionId}${new Date().toISOString()}`)
-    .digest('hex');
-
-  return `TRC-${hash.substring(0, 6)}-${hash.substring(8, 16)}`;
 }

@@ -17,18 +17,4 @@ export const createTransactionRequestSchema = z.object({
    * @example 2
    */
   buyerId: z.number().positive(),
-
-  /**
-   * The amount that was transferred in the transaction. Only later in the future, but the reason this needs to be sent here, is in the case of multiple payments so that we can sum them all together.
-   *
-   * @example 12.00
-   */
-  amount: z.number().positive(),
-
-  /**
-   * The buyer will be going off platform and going through callbacks for the transactions with third-party integrations. If this happens we need to capture it.
-   *
-   * @example Vs889z
-   */
-  transactionid: z.string().optional(),
 });
