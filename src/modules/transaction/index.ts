@@ -12,6 +12,7 @@ import {
 import GraphQLClient from '@src/lib/tradesafe/src/client';
 import { FailedToCreateTransactionError } from './errors';
 import { generatePublicId } from '@src/lib/utils/string';
+import { Transaction as TradeSafeTransaction } from '@src/lib/tradesafe/src/types';
 
 const database = new DbConnection().configure();
 const logger = labeledLogger('module:transaction');
@@ -32,6 +33,7 @@ const tradesafeClient = new GraphQLClient().config(
  */
 export async function createNewTransaction(
   transactionData: Pick<Transaction, 'campaignId' | 'buyerId'>,
+  addTransaction = false,
   addCheckoutLink = false,
   allocationTitle = 'General Sales Allocation',
 ): Promise<Pick<Transaction, 'id' | 'publicId'>> {
@@ -44,41 +46,45 @@ export async function createNewTransaction(
     getCampaignWithSeller(transactionData.campaignId, db),
   ]);
 
-  const tradesafeTransaction = await createTransaction(tradesafeClient, {
-    title: campaignData?.campaigns.title as string,
-    description: campaignData?.campaigns.description as string,
-    industry: 'GENERAL_GOODS_SERVICES',
-    currency: 'ZAR',
-    feeAllocation: 'SELLER',
-    allocations: [
-      {
-        title: allocationTitle,
-        description: 'General allocation.',
-        value: adjustCostBase(campaignData?.campaigns, true).costBase as number,
+  let tradesafeTransaction: Pick<TradeSafeTransaction, 'id'> | undefined;
+  if (addTransaction) {
+    tradesafeTransaction = await createTransaction(tradesafeClient, {
+      title: campaignData?.campaigns.title as string,
+      description: campaignData?.campaigns.description as string,
+      industry: 'GENERAL_GOODS_SERVICES',
+      currency: 'ZAR',
+      feeAllocation: 'SELLER',
+      allocations: [
+        {
+          title: allocationTitle,
+          description: 'General allocation.',
+          value: adjustCostBase(campaignData?.campaigns, true)
+            .costBase as number,
 
-        /**
-         * TODO 2025-02-08: Improve delivery time calculation.
-         *
-         * This logic should be driven by a JSON object within the campaign.
-         * - If there's a specific deliver-by date, calculate the days difference.
-         * - If the campaign requires a minimum number of orders, dynamically adjust
-         *   the allocation for all related transactions.
-         */
-        daysToDeliver: 7,
-        daysToInspect: 7,
-      },
-    ],
-    parties: [
-      { token: buyerData?.buyers.tokenId as string, role: 'BUYER' },
-      { token: campaignData?.sellers?.tokenId as string, role: 'SELLER' },
-    ],
-  });
+          /**
+           * TODO 2025-02-08: Improve delivery time calculation.
+           *
+           * This logic should be driven by a JSON object within the campaign.
+           * - If there's a specific deliver-by date, calculate the days difference.
+           * - If the campaign requires a minimum number of orders, dynamically adjust
+           *   the allocation for all related transactions.
+           */
+          daysToDeliver: 7,
+          daysToInspect: 7,
+        },
+      ],
+      parties: [
+        { token: buyerData?.buyers.tokenId as string, role: 'BUYER' },
+        { token: campaignData?.sellers?.tokenId as string, role: 'SELLER' },
+      ],
+    });
 
-  if (!tradesafeTransaction) {
-    logger.error('TradeSafe API did not return a transaction.');
-    throw new FailedToCreateTransactionError(
-      'Nothing received from the TradeSafe API when creating a transaction.',
-    );
+    if (!tradesafeTransaction) {
+      logger.error('TradeSafe API did not return a transaction.');
+      throw new FailedToCreateTransactionError(
+        'Nothing received from the TradeSafe API when creating a transaction.',
+      );
+    }
   }
 
   let checkoutLink: string | undefined;
@@ -91,7 +97,7 @@ export async function createNewTransaction(
 
   const response = await createTransactionRecord(db, {
     campaignId: transactionData.campaignId,
-    transactionId: tradesafeTransaction.id,
+    transactionId: tradesafeTransaction?.id,
     buyerId: buyerData?.buyers.id,
     balance: 0, // Initial balance set to 0; updated upon payment.
     publicId: generatePublicId(),
