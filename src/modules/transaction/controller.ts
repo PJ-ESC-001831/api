@@ -20,6 +20,7 @@ export async function createTransaction(
     const {
       campaignId = null,
       buyerId = null,
+      addTransaction = false,
       addCheckoutLink = false,
     } = request.body;
 
@@ -32,6 +33,7 @@ export async function createTransaction(
         campaignId,
         buyerId,
       },
+      addTransaction,
       addCheckoutLink,
     );
 

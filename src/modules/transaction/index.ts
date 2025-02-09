@@ -35,7 +35,11 @@ export async function createNewTransaction(
   transactionData: Pick<Transaction, 'campaignId' | 'buyerId'>,
   addTransaction = false,
   addCheckoutLink = false,
-  allocationTitle = 'General Sales Allocation',
+
+  /**
+   * TODO: You can replace this with the detailed description. Like XL-Blue-Shirt
+   */
+  allocationTitle = 'Purchase',
 ): Promise<Pick<Transaction, 'id' | 'publicId'>> {
   const db = (await database).getDb();
 
