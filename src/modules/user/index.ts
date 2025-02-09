@@ -17,90 +17,88 @@ import { generatePublicId } from '@src/lib/utils/string';
 const logger = labeledLogger('module:user');
 
 const database = new DbConnection().configure();
-let tradesafeClient: GraphQLClient;
+let tradesafeClient: GraphQLClient = new GraphQLClient().config(
+  process.env.TRADESAFE_CLIENT_ID as string,
+  process.env.TRADESAFE_SECRET as string,
+);
 
 /**
- * Creates a new user in the database.
+ * Creates a new user record in the database and assigns a TradeSafe token if applicable.
  *
  * @param {User} userData - The user data for the new user.
- * @returns {Promise<any>} The created user record.
- * @throws {Error} If the user creation fails.
+ * @param {string} userType - The type of user ('admin', 'seller', 'buyer').
+ * @returns {Promise<User>} The created user record with an attached TradeSafe token if applicable.
+ * @throws {UserCreationError} If user creation fails.
  */
 export const createUserRecord = async (
   userData: User,
   userType: string,
-): Promise<any> => {
+): Promise<Pick<User, 'id'> & { tokenId?: string }> => {
   try {
     const db = (await database).getDb();
-
     userData.publicId = generatePublicId();
 
     if (userType === 'admin') {
       return createUser(userData, admins, db);
     }
 
-    let schema: typeof sellers | typeof buyers | undefined = undefined;
-    if (userType === 'seller') schema = sellers;
-    else if (userType === 'buyer') schema = buyers;
-
+    const schema =
+      userType === 'seller'
+        ? sellers
+        : userType === 'buyer'
+          ? buyers
+          : undefined;
     if (!schema) throw new UnknownUserTypeError();
 
-    /*
-     * Can't do these in parallel because we need createUser to stop the createTokenForUser
-     * function if it detects a duplicate emailAddress.
-     */
+    // Create user first, ensuring no duplicate email issues.
     const user = await createUser(userData, schema, db);
-    const tokenId = await createTokenForUser(userData);
 
-    // Check whether the token was created.
+    // Generate TradeSafe token.
+    const tokenId = await createTokenForUser(userData);
     if (!tokenId) throw new TokenNotAttachedError();
 
-    const updatedUser = await updateUserToken(
-      schema,
-      user.id,
-      tokenId as string,
-      db,
-    );
+    // Attach TradeSafe token to user.
+    const updatedUser = await updateUserToken(schema, user.id, tokenId, db);
 
-    return {
-      ...user,
-      ...updatedUser,
-    };
+    return { ...user, ...updatedUser } as Pick<User, 'id'> & { tokenId?: string };
   } catch (error) {
-    logger.error(error);
+    logger.error('User creation failed:', error);
     throw new UserCreationError('Could not create user.');
   }
 };
 
-export const createTokenForUser = async (userData: User) => {
+/**
+ * Creates a TradeSafe token for a user.
+ *
+ * @param {User} userData - The user data required for token generation.
+ * @returns {Promise<string | undefined>} The generated TradeSafe token ID, or undefined if creation fails.
+ * @throws {UserCreationError} If token creation encounters a fatal error.
+ */
+export const createTokenForUser = async (
+  userData: User,
+): Promise<string | undefined> => {
   try {
-    tradesafeClient = await GraphQLClient.createAuthenticatedClient(
-      process.env.TRADESAFE_CLIENT_ID as string,
-      process.env.TRADESAFE_SECRET as string,
-    );
+    await tradesafeClient.authenticate();
 
     const token = await createToken(tradesafeClient, {
       user: {
-        givenName: userData?.firstName,
-        familyName: userData?.lastName,
-        email: userData?.emailAddress,
-        mobile: userData?.phoneNumber as string | undefined,
+        givenName: userData.firstName,
+        familyName: userData.lastName,
+        email: userData.emailAddress,
+        mobile: userData.phoneNumber as string | undefined,
       },
     });
 
     if (!token?.id) {
       logger.warn(
-        `Unable to create a TradeSafe token for ${userData?.emailAddress}`,
+        `Failed to generate TradeSafe token for ${userData.emailAddress}`,
       );
       return undefined;
     }
 
-    return token?.id;
+    return token.id;
   } catch (error) {
-    logger.error(
-      'Encountered a fatal error when trying to create a TradeSafe token for the given user: ',
-      error,
-    );
+    logger.error('Fatal error creating TradeSafe token for user:', error);
     throw new UserCreationError('Could not create TradeSafe user.');
   }
 };

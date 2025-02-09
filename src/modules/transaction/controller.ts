@@ -5,6 +5,7 @@ import { createNewTransaction } from '.';
 const logger = labeledLogger('module:transaction/controller');
 /**
  * Creates a new transaction in the database.
+ * 
  * @param request - The incoming HTTP request object containing transaction data.
  * @param response - The HTTP response object used to send back the response.
  * @param next - The next middleware function in the Express stack.
@@ -16,16 +17,23 @@ export async function createTransaction(
   next: NextFunction,
 ): Promise<Response | void> {
   try {
-    const { campaignId = null, buyerId = null } = request.body;
+    const {
+      campaignId = null,
+      buyerId = null,
+      addCheckoutLink = false,
+    } = request.body;
 
     logger.info(
       `Creating new transaction from buyerId: ${buyerId} for campaignId: ${campaignId}.`,
     );
 
-    const transaction = await createNewTransaction({
-      campaignId,
-      buyerId,
-    });
+    const transaction = await createNewTransaction(
+      {
+        campaignId,
+        buyerId,
+      },
+      addCheckoutLink,
+    );
 
     return response.status(200).json({ data: transaction });
   } catch (error) {

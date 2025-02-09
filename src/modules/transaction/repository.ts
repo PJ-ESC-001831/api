@@ -1,5 +1,4 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import { labeledLogger } from '../logger';
 import { Transaction } from './types';
 import UndefinedDatabaseClientError from '@src/lib/errors/UndefinedDatabaseClientError';
@@ -8,26 +7,42 @@ import { FailedToCreateTransactionError } from './errors';
 
 const logger = labeledLogger('module:transaction/repository');
 
+/**
+ * Creates a new transaction record in the database.
+ *
+ * @param {NodePgDatabase<Record<string, never>> | undefined} db - The database client instance.
+ * @param {Transaction} transactionData - The transaction details to be inserted.
+ * @returns {Promise<Pick<Transaction, 'id' | 'publicId'>>} The newly created transaction's ID and public ID.
+ * @throws {UndefinedDatabaseClientError} If the database client is undefined.
+ * @throws {FailedToCreateTransactionError} If the transaction creation fails.
+ */
 export async function createTransactionRecord(
   db: NodePgDatabase<Record<string, never>> | undefined,
   transactionData: Transaction,
-): Promise<Pick<Transaction, 'id' | 'reference'>> {
+): Promise<Pick<Transaction, 'id' | 'publicId'>> {
   if (!db) {
+    console.error('Database client is undefined.');
     throw new UndefinedDatabaseClientError();
   }
 
   logger.info(
-    `Creating a new transaction for campaign ${transactionData.campaignId}.`,
+    `Creating transaction for campaign ${transactionData.campaignId}.`,
   );
 
-  const transaction = await db
+  const result = await db
     .insert(transactions)
     .values(transactionData)
-    .returning({ id: transactions.id, reference: transactions.reference })
+    .returning({
+      id: transactions.id,
+      publicId: transactions.publicId,
+      checkoutLink: transactions.checkoutLink,
+    })
     .execute();
 
-  if (!transaction || !transaction.length)
+  if (!result?.length) {
+    console.error('Failed to create transaction:', transactionData);
     throw new FailedToCreateTransactionError();
+  }
 
-  return transaction[0];
+  return result[0];
 }

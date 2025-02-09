@@ -17,4 +17,12 @@ export const createTransactionRequestSchema = z.object({
    * @example 2
    */
   buyerId: z.number().positive(),
+
+  /**
+   * This is a bool to generate a checkout link for the transaction. Either yes
+   * here or you update the transaction with the link later.
+   *
+   * @example true
+   */
+  addCheckoutLink: z.boolean().optional(),
 });
