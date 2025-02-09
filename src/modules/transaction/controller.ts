@@ -54,11 +54,20 @@ export async function findTransactionByPublicId(
   next: NextFunction,
 ): Promise<Response | void> {
   try {
+    const { include = null } = request.query;
     const { publicId } = request.params;
+
+    let fieldsToInclude: Set;
+    if (include && typeof include === 'string') {
+      fieldsToInclude = new Set(include.split(',').map((item) => item.trim()));
+    }
 
     logger.info(`Retrieving transaction with publicId: ${publicId}.`);
 
-    const transaction = await getTransactionByPublicId(publicId);
+    const transaction = await getTransactionByPublicId(
+      publicId,
+      fieldsToInclude?.has('campaign'),
+    );
 
     return response.status(200).json({ data: transaction });
   } catch (error) {

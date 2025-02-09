@@ -122,10 +122,15 @@ export async function createNewTransaction(
 
 export async function getTransactionByPublicId(
   publicId: string,
+  includeCampaign: boolean,
 ): Promise<Transaction | null> {
   const db = (await database).getDb();
 
-  const transaction = getTransactionRecordByPublicId(db, publicId);
+  const transactionData = getTransactionRecordByPublicId(
+    db,
+    publicId,
+    includeCampaign,
+  );
 
-  return transaction;
+  return transactionData;
 }

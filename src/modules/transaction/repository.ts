@@ -8,6 +8,8 @@ import {
   TransactionNotFoundError,
 } from './errors';
 import { eq } from 'drizzle-orm';
+import { campaigns } from '@src/database/schema/campaigns';
+import { Campaign } from '../campaign/types';
 
 const logger = labeledLogger('module:transaction/repository');
 
@@ -54,7 +56,8 @@ export async function createTransactionRecord(
 export async function getTransactionRecordByPublicId(
   db: NodePgDatabase<Record<string, never>> | undefined,
   publicId: string,
-): Promise<Transaction | null> {
+  includeCampaign: boolean = false,
+): Promise<(Transaction & { campaign?: Campaign }) | null> {
   if (!db) {
     console.error('Database client is undefined.');
     throw new UndefinedDatabaseClientError();
@@ -62,13 +65,32 @@ export async function getTransactionRecordByPublicId(
 
   logger.info(`Getting ransaction with publicId: ${publicId}.`);
 
-  const results = await db
-    .select()
-    .from(transactions)
+  const query = db.select().from(transactions);
+
+  if (includeCampaign) {
+    query.leftJoin(campaigns, eq(campaigns.id, transactions.campaignId));
+  }
+
+  const results = await query
     .where(eq(transactions.publicId, publicId))
     .execute();
 
   if (results.length === 0) throw new TransactionNotFoundError();
 
-  return results[0];
+  let transactionData: Transaction & { campaign?: Campaign };
+  if (includeCampaign) {
+    const transactionCollection = results[0] as unknown as {
+      transactions: Transaction;
+      campaigns?: Campaign;
+    };
+
+    transactionData = {
+      ...transactionCollection.transactions,
+      campaign: transactionCollection.campaigns,
+    };
+  } else {
+    transactionData = results[0];
+  }
+
+  return transactionData;
 }
