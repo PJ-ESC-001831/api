@@ -3,7 +3,11 @@ import { labeledLogger } from '../logger';
 import { Transaction } from './types';
 import UndefinedDatabaseClientError from '@src/lib/errors/UndefinedDatabaseClientError';
 import { transactions } from '@src/database/schema/transactions';
-import { FailedToCreateTransactionError } from './errors';
+import {
+  FailedToCreateTransactionError,
+  TransactionNotFoundError,
+} from './errors';
+import { eq } from 'drizzle-orm';
 
 const logger = labeledLogger('module:transaction/repository');
 
@@ -45,4 +49,26 @@ export async function createTransactionRecord(
   }
 
   return result[0];
+}
+
+export async function getTransactionRecordByPublicId(
+  db: NodePgDatabase<Record<string, never>> | undefined,
+  publicId: string,
+): Promise<Transaction | null> {
+  if (!db) {
+    console.error('Database client is undefined.');
+    throw new UndefinedDatabaseClientError();
+  }
+
+  logger.info(`Getting ransaction with publicId: ${publicId}.`);
+
+  const results = await db
+    .select()
+    .from(transactions)
+    .where(eq(transactions.publicId, publicId))
+    .execute();
+
+  if (results.length === 0) throw new TransactionNotFoundError();
+
+  return results[0];
 }

@@ -1,7 +1,11 @@
 import { Router } from 'express';
-import { createTransaction } from './controller';
+import { createTransaction, findTransactionByPublicId } from './controller';
 import { validateObject } from '@src/lib/utils/validation';
-import { createTransactionRequestSchema } from './validation';
+import {
+  createTransactionRequestSchema,
+  getTransactionByPublicIdRequestSchema,
+} from './validation';
+import { ObjectsToValidate } from '@src/lib/utils/validation/enums';
 
 const route = Router();
 
@@ -12,6 +16,18 @@ route.post(
   '/',
   validateObject(createTransactionRequestSchema),
   createTransaction,
+);
+
+/**
+ * Route for retrieving a transaction by publicId.
+ */
+route.get(
+  '/:publicId',
+  validateObject(
+    getTransactionByPublicIdRequestSchema,
+    ObjectsToValidate.PARAMS,
+  ),
+  findTransactionByPublicId,
 );
 
 export default {

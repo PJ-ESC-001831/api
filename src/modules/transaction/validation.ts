@@ -44,4 +44,13 @@ export const createTransactionRequestSchema = z
         path: ['addCheckoutLink'],
       });
     }
-  });;
+  });
+
+export const getTransactionByPublicIdRequestSchema = z.object({
+  /**
+   * Gets transaction for by public ID.
+   *
+   * @example 9ba152a923cf7869
+   */
+  publicId: z.string(),
+});

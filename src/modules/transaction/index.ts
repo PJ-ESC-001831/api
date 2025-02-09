@@ -1,7 +1,11 @@
 import DbConnection from '@database/client';
 import { adjustCostBase } from '@src/lib/utils/finance';
 import { Transaction } from './types';
-import { createTransactionRecord } from './repository';
+import {
+  createTransactionRecord,
+  getTransactionRecord,
+  getTransactionRecordByPublicId,
+} from './repository';
 import { labeledLogger } from '../logger';
 import { getBuyer } from '../user/repository';
 import { getCampaignWithSeller } from '../campaign/repository';
@@ -114,4 +118,14 @@ export async function createNewTransaction(
   }
 
   return response;
+}
+
+export async function getTransactionByPublicId(
+  publicId: string,
+): Promise<Transaction | null> {
+  const db = (await database).getDb();
+
+  const transaction = getTransactionRecordByPublicId(db, publicId);
+
+  return transaction;
 }

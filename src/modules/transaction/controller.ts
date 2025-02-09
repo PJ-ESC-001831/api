@@ -1,11 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { labeledLogger } from '../logger';
-import { createNewTransaction } from '.';
+import {
+  createNewTransaction,
+  getTransaction,
+  getTransactionByPublicId,
+} from '.';
+import { getTransactionRecord } from './repository';
 
 const logger = labeledLogger('module:transaction/controller');
 /**
  * Creates a new transaction in the database.
- * 
+ *
  * @param request - The incoming HTTP request object containing transaction data.
  * @param response - The HTTP response object used to send back the response.
  * @param next - The next middleware function in the Express stack.
@@ -36,6 +41,24 @@ export async function createTransaction(
       addTransaction,
       addCheckoutLink,
     );
+
+    return response.status(200).json({ data: transaction });
+  } catch (error) {
+    logger.error('Error creating transaction:', error);
+    next(error);
+  }
+}
+export async function findTransactionByPublicId(
+  request: Request,
+  response: Response,
+  next: NextFunction,
+): Promise<Response | void> {
+  try {
+    const { publicId } = request.params;
+
+    logger.info(`Retrieving transaction with publicId: ${publicId}.`);
+
+    const transaction = await getTransactionByPublicId(publicId);
 
     return response.status(200).json({ data: transaction });
   } catch (error) {
