@@ -15,11 +15,24 @@ elif [ -f /etc/bash_completion.d/git-prompt ]; then
     . /etc/bash_completion.d/git-prompt
 fi
 
-# Custom prompt settings with colour and Git info
-# Colours: \[\033[<style>;<colour>m\]
-# Reset: \[\033[0m\]
-# \u = username, \h = hostname, \w = current working directory, \$(__git_ps1) = Git branch info
-PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]\$ '
+# Function to get current Git branch
+git_branch() {
+  local branch
+  branch=$(git branch --show-current 2>/dev/null)
+  [[ -n "$branch" ]] && echo " 🌿 \[\033[1;36m\]$branch\[\033[0m\]"
+}
+
+# Function that gets the current base prompt
+base_prompt() {
+    echo "\[\e[1m\e[31m\][\[\e[m\]\[\e[1m\e[38;5;172m\]\u\[\e[m\]@\[\e[1m\e[38;5;153m\]\h\[\e[m\] \[\e[1m\e[38;5;214m\]\W\[\e[m\]\[\e[1m\e[31m\]]\[\e[0m\]"
+}
+
+# Enable colour prompt if terminal supports it
+if [[ "$TERM" =~ (xterm-color|*-256color) ]]; then
+    color_prompt=yes
+fi
+
+PS1=PS1="$(base_prompt):$(git_branch)\[\e[m\] 🕒 $(date +'%H:%M:%S') \n\$ "
 
 # Enable color support for ls and add handy aliases
 if [ -x /usr/bin/dircolors ]; then
